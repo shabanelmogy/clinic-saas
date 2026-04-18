@@ -1,0 +1,80 @@
+{
+  "common": {
+    "success": "Éxito",
+    "error": "Error",
+    "notFound": "No encontrado",
+    "unauthorized": "No autorizado",
+    "forbidden": "Prohibido",
+    "badRequest": "Solicitud incorrecta",
+    "conflict": "Conflicto",
+    "validationFailed": "Validación fallida",
+    "internalError": "Error interno del servidor"
+  },
+  "auth": {
+    "loginSuccess": "Inicio de sesión exitoso",
+    "logoutSuccess": "Cierre de sesión exitoso",
+    "logoutAllSuccess": "Sesión cerrada en todos los dispositivos",
+    "tokenRefreshed": "Token actualizado",
+    "invalidCredentials": "Correo electrónico o contraseña inválidos",
+    "accountDeactivated": "La cuenta está desactivada",
+    "invalidToken": "Token de acceso inválido o expirado",
+    "invalidRefreshToken": "Token de actualización inválido",
+    "refreshTokenExpired": "Token de actualización expirado. Por favor, inicie sesión nuevamente",
+    "refreshTokenReused": "Token de actualización ya utilizado. Por favor, inicie sesión nuevamente",
+    "accountNotFound": "Cuenta no encontrada o desactivada"
+  },
+  "users": {
+    "retrieved": "Usuarios recuperados",
+    "userRetrieved": "Usuario recuperado",
+    "created": "Usuario creado exitosamente",
+    "updated": "Usuario actualizado exitosamente",
+    "deleted": "Usuario eliminado exitosamente",
+    "notFound": "Usuario no encontrado",
+    "emailExists": "Ya existe un usuario con ese correo electrónico en esta clínica",
+    "emailInUse": "El correo electrónico ya está en uso",
+    "cannotDeleteSelf": "No puedes eliminar tu propia cuenta",
+    "hasAppointments": "No se puede eliminar el usuario: tiene {{count}} cita(s). Elimine o reasigne sus citas primero",
+    "passwordUpdated": "Contraseña actualizada",
+    "incorrectPassword": "La contraseña actual es incorrecta",
+    "userInactive": "El usuario está inactivo"
+  },
+  "appointments": {
+    "retrieved": "Citas recuperadas",
+    "appointmentRetrieved": "Cita recuperada",
+    "created": "Cita creada exitosamente",
+    "updated": "Cita actualizada exitosamente",
+    "deleted": "Cita eliminada exitosamente",
+    "notFound": "Cita no encontrada",
+    "cannotUpdateStatus": "No se puede actualizar una cita con estado \"{{status}}\"",
+    "cannotDeleteConfirmed": "No se puede eliminar una cita confirmada. Cancélela primero",
+    "userNotFound": "Usuario no encontrado",
+    "userInactive": "No se puede crear una cita para un usuario inactivo",
+    "noPermission": "No tienes permiso para ver esta cita"
+  },
+  "permissions": {
+    "required": "Se requiere el permiso '{{permission}}'",
+    "insufficientPermissions": "Permisos insuficientes",
+    "oneRequired": "Se requiere uno de estos permisos: {{permissions}}",
+    "missingPermissions": "Faltan permisos requeridos: {{permissions}}"
+  },
+  "validation": {
+    "invalidUuid": "Formato UUID inválido",
+    "invalidEmail": "Dirección de correo electrónico inválida",
+    "required": "{{field}} es requerido",
+    "minLength": "{{field}} debe tener al menos {{min}} caracteres",
+    "maxLength": "{{field}} debe tener como máximo {{max}} caracteres",
+    "min": "{{field}} debe ser al menos {{min}}",
+    "max": "{{field}} debe ser como máximo {{max}}",
+    "invalidFormat": "Formato de {{field}} inválido",
+    "passwordRequirements": "La contraseña debe contener al menos una letra mayúscula y un número",
+    "appointments": {
+      "invalidDatetime": "Debe ser una cadena de fecha y hora ISO 8601 válida",
+      "mustBeFuture": "La hora programada debe estar en el futuro",
+      "durationMustBeInteger": "La duración debe ser un número entero"
+    }
+  },
+  "health": {
+    "ok": "ok",
+    "degraded": "degradado"
+  }
+}

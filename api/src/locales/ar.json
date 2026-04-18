@@ -1,0 +1,80 @@
+{
+  "common": {
+    "success": "نجح",
+    "error": "خطأ",
+    "notFound": "غير موجود",
+    "unauthorized": "غير مصرح",
+    "forbidden": "محظور",
+    "badRequest": "طلب خاطئ",
+    "conflict": "تعارض",
+    "validationFailed": "فشل التحقق",
+    "internalError": "خطأ داخلي في الخادم"
+  },
+  "auth": {
+    "loginSuccess": "تم تسجيل الدخول بنجاح",
+    "logoutSuccess": "تم تسجيل الخروج بنجاح",
+    "logoutAllSuccess": "تم تسجيل الخروج من جميع الأجهزة",
+    "tokenRefreshed": "تم تحديث الرمز",
+    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "accountDeactivated": "الحساب معطل",
+    "invalidToken": "رمز الوصول غير صالح أو منتهي الصلاحية",
+    "invalidRefreshToken": "رمز التحديث غير صالح",
+    "refreshTokenExpired": "انتهت صلاحية رمز التحديث. يرجى تسجيل الدخول مرة أخرى",
+    "refreshTokenReused": "تم استخدام رمز التحديث بالفعل. يرجى تسجيل الدخول مرة أخرى",
+    "accountNotFound": "الحساب غير موجود أو معطل"
+  },
+  "users": {
+    "retrieved": "تم استرجاع المستخدمين",
+    "userRetrieved": "تم استرجاع المستخدم",
+    "created": "تم إنشاء المستخدم بنجاح",
+    "updated": "تم تحديث المستخدم بنجاح",
+    "deleted": "تم حذف المستخدم بنجاح",
+    "notFound": "المستخدم غير موجود",
+    "emailExists": "يوجد مستخدم بهذا البريد الإلكتروني بالفعل في هذه العيادة",
+    "emailInUse": "البريد الإلكتروني مستخدم بالفعل",
+    "cannotDeleteSelf": "لا يمكنك حذف حسابك الخاص",
+    "hasAppointments": "لا يمكن حذف المستخدم: لديه {{count}} موعد. احذف أو أعد تعيين مواعيده أولاً",
+    "passwordUpdated": "تم تحديث كلمة المرور",
+    "incorrectPassword": "كلمة المرور الحالية غير صحيحة",
+    "userInactive": "المستخدم غير نشط"
+  },
+  "appointments": {
+    "retrieved": "تم استرجاع المواعيد",
+    "appointmentRetrieved": "تم استرجاع الموعد",
+    "created": "تم إنشاء الموعد بنجاح",
+    "updated": "تم تحديث الموعد بنجاح",
+    "deleted": "تم حذف الموعد بنجاح",
+    "notFound": "الموعد غير موجود",
+    "cannotUpdateStatus": "لا يمكن تحديث موعد بحالة \"{{status}}\"",
+    "cannotDeleteConfirmed": "لا يمكن حذف موعد مؤكد. قم بإلغائه أولاً",
+    "userNotFound": "المستخدم غير موجود",
+    "userInactive": "لا يمكن إنشاء موعد لمستخدم غير نشط",
+    "noPermission": "ليس لديك إذن لعرض هذا الموعد"
+  },
+  "permissions": {
+    "required": "الإذن '{{permission}}' مطلوب",
+    "insufficientPermissions": "أذونات غير كافية",
+    "oneRequired": "أحد هذه الأذونات مطلوب: {{permissions}}",
+    "missingPermissions": "الأذونات المطلوبة مفقودة: {{permissions}}"
+  },
+  "validation": {
+    "invalidUuid": "تنسيق UUID غير صالح",
+    "invalidEmail": "عنوان البريد الإلكتروني غير صالح",
+    "required": "{{field}} مطلوب",
+    "minLength": "يجب أن يكون {{field}} على الأقل {{min}} حرفًا",
+    "maxLength": "يجب أن يكون {{field}} على الأكثر {{max}} حرفًا",
+    "min": "يجب أن يكون {{field}} على الأقل {{min}}",
+    "max": "يجب أن يكون {{field}} على الأكثر {{max}}",
+    "invalidFormat": "تنسيق {{field}} غير صالح",
+    "passwordRequirements": "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل ورقم واحد",
+    "appointments": {
+      "invalidDatetime": "يجب أن يكون سلسلة تاريخ ووقت ISO 8601 صالحة",
+      "mustBeFuture": "يجب أن يكون الوقت المحدد في المستقبل",
+      "durationMustBeInteger": "يجب أن تكون المدة رقمًا صحيحًا"
+    }
+  },
+  "health": {
+    "ok": "جيد",
+    "degraded": "متدهور"
+  }
+}

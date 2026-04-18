@@ -1,0 +1,80 @@
+{
+  "common": {
+    "success": "Succès",
+    "error": "Erreur",
+    "notFound": "Non trouvé",
+    "unauthorized": "Non autorisé",
+    "forbidden": "Interdit",
+    "badRequest": "Mauvaise requête",
+    "conflict": "Conflit",
+    "validationFailed": "Échec de la validation",
+    "internalError": "Erreur interne du serveur"
+  },
+  "auth": {
+    "loginSuccess": "Connexion réussie",
+    "logoutSuccess": "Déconnexion réussie",
+    "logoutAllSuccess": "Déconnecté de tous les appareils",
+    "tokenRefreshed": "Jeton actualisé",
+    "invalidCredentials": "Email ou mot de passe invalide",
+    "accountDeactivated": "Le compte est désactivé",
+    "invalidToken": "Jeton d'accès invalide ou expiré",
+    "invalidRefreshToken": "Jeton de rafraîchissement invalide",
+    "refreshTokenExpired": "Jeton de rafraîchissement expiré. Veuillez vous reconnecter",
+    "refreshTokenReused": "Jeton de rafraîchissement déjà utilisé. Veuillez vous reconnecter",
+    "accountNotFound": "Compte introuvable ou désactivé"
+  },
+  "users": {
+    "retrieved": "Utilisateurs récupérés",
+    "userRetrieved": "Utilisateur récupéré",
+    "created": "Utilisateur créé avec succès",
+    "updated": "Utilisateur mis à jour avec succès",
+    "deleted": "Utilisateur supprimé avec succès",
+    "notFound": "Utilisateur non trouvé",
+    "emailExists": "Un utilisateur avec cet email existe déjà dans cette clinique",
+    "emailInUse": "L'email est déjà utilisé",
+    "cannotDeleteSelf": "Vous ne pouvez pas supprimer votre propre compte",
+    "hasAppointments": "Impossible de supprimer l'utilisateur : il a {{count}} rendez-vous. Supprimez ou réaffectez ses rendez-vous d'abord",
+    "passwordUpdated": "Mot de passe mis à jour",
+    "incorrectPassword": "Le mot de passe actuel est incorrect",
+    "userInactive": "L'utilisateur est inactif"
+  },
+  "appointments": {
+    "retrieved": "Rendez-vous récupérés",
+    "appointmentRetrieved": "Rendez-vous récupéré",
+    "created": "Rendez-vous créé avec succès",
+    "updated": "Rendez-vous mis à jour avec succès",
+    "deleted": "Rendez-vous supprimé avec succès",
+    "notFound": "Rendez-vous non trouvé",
+    "cannotUpdateStatus": "Impossible de mettre à jour un rendez-vous avec le statut \"{{status}}\"",
+    "cannotDeleteConfirmed": "Impossible de supprimer un rendez-vous confirmé. Annulez-le d'abord",
+    "userNotFound": "Utilisateur non trouvé",
+    "userInactive": "Impossible de créer un rendez-vous pour un utilisateur inactif",
+    "noPermission": "Vous n'avez pas la permission de voir ce rendez-vous"
+  },
+  "permissions": {
+    "required": "La permission '{{permission}}' est requise",
+    "insufficientPermissions": "Permissions insuffisantes",
+    "oneRequired": "L'une de ces permissions est requise : {{permissions}}",
+    "missingPermissions": "Permissions requises manquantes : {{permissions}}"
+  },
+  "validation": {
+    "invalidUuid": "Format UUID invalide",
+    "invalidEmail": "Adresse email invalide",
+    "required": "{{field}} est requis",
+    "minLength": "{{field}} doit contenir au moins {{min}} caractères",
+    "maxLength": "{{field}} doit contenir au maximum {{max}} caractères",
+    "min": "{{field}} doit être au moins {{min}}",
+    "max": "{{field}} doit être au maximum {{max}}",
+    "invalidFormat": "Format {{field}} invalide",
+    "passwordRequirements": "Le mot de passe doit contenir au moins une lettre majuscule et un chiffre",
+    "appointments": {
+      "invalidDatetime": "Doit être une chaîne de date et heure ISO 8601 valide",
+      "mustBeFuture": "L'heure prévue doit être dans le futur",
+      "durationMustBeInteger": "La durée doit être un nombre entier"
+    }
+  },
+  "health": {
+    "ok": "ok",
+    "degraded": "dégradé"
+  }
+}

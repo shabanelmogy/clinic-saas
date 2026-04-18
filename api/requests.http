@@ -1,0 +1,128 @@
+### Base URL
+@base = http://localhost:3000/api/v1
+
+### ─── Health ──────────────────────────────────────────────────────────────────
+
+GET http://localhost:3000/health
+
+
+### ─── Users ──────────────────────────────────────────────────────────────────
+
+### List users (with pagination + filters)
+GET {{base}}/users?page=1&limit=10&role=user&isActive=true
+Content-Type: application/json
+
+###
+
+### List users with search
+GET {{base}}/users?search=john&page=1&limit=5
+Content-Type: application/json
+
+###
+
+### Get user by ID
+GET {{base}}/users/550e8400-e29b-41d4-a716-446655440000
+Content-Type: application/json
+
+###
+
+### Create user
+POST {{base}}/users
+Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "password": "SecurePass1",
+  "role": "user"
+}
+
+###
+
+### Create user — validation error (weak password)
+POST {{base}}/users
+Content-Type: application/json
+
+{
+  "name": "J",
+  "email": "not-an-email",
+  "password": "weak"
+}
+
+###
+
+### Update user
+PATCH {{base}}/users/550e8400-e29b-41d4-a716-446655440000
+Content-Type: application/json
+
+{
+  "name": "Jane Smith",
+  "isActive": false
+}
+
+###
+
+### Delete user
+DELETE {{base}}/users/550e8400-e29b-41d4-a716-446655440000
+
+
+### ─── Appointments ────────────────────────────────────────────────────────────
+
+### List appointments
+GET {{base}}/appointments?page=1&limit=10&status=pending
+Content-Type: application/json
+
+###
+
+### List appointments by user + date range
+GET {{base}}/appointments?userId=550e8400-e29b-41d4-a716-446655440000&from=2026-01-01T00:00:00Z&to=2026-12-31T23:59:59Z
+Content-Type: application/json
+
+###
+
+### Get appointment by ID
+GET {{base}}/appointments/660e8400-e29b-41d4-a716-446655440001
+Content-Type: application/json
+
+###
+
+### Create appointment
+POST {{base}}/appointments
+Content-Type: application/json
+
+{
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "title": "Initial Consultation",
+  "description": "First meeting with the client",
+  "scheduledAt": "2026-06-15T10:00:00Z",
+  "durationMinutes": 60,
+  "notes": "Bring portfolio"
+}
+
+###
+
+### Create appointment — validation error (past date)
+POST {{base}}/appointments
+Content-Type: application/json
+
+{
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "title": "Past Meeting",
+  "scheduledAt": "2020-01-01T10:00:00Z"
+}
+
+###
+
+### Update appointment status
+PATCH {{base}}/appointments/660e8400-e29b-41d4-a716-446655440001
+Content-Type: application/json
+
+{
+  "status": "confirmed",
+  "notes": "Client confirmed via phone"
+}
+
+###
+
+### Delete appointment
+DELETE {{base}}/appointments/660e8400-e29b-41d4-a716-446655440001

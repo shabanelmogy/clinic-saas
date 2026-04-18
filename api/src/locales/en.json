@@ -1,0 +1,80 @@
+{
+  "common": {
+    "success": "Success",
+    "error": "Error",
+    "notFound": "Not found",
+    "unauthorized": "Unauthorized",
+    "forbidden": "Forbidden",
+    "badRequest": "Bad request",
+    "conflict": "Conflict",
+    "validationFailed": "Validation failed",
+    "internalError": "Internal server error"
+  },
+  "auth": {
+    "loginSuccess": "Login successful",
+    "logoutSuccess": "Logged out successfully",
+    "logoutAllSuccess": "Logged out from all devices",
+    "tokenRefreshed": "Token refreshed",
+    "invalidCredentials": "Invalid email or password",
+    "accountDeactivated": "Account is deactivated",
+    "invalidToken": "Invalid or expired access token",
+    "invalidRefreshToken": "Invalid refresh token",
+    "refreshTokenExpired": "Refresh token expired. Please log in again",
+    "refreshTokenReused": "Refresh token already used. Please log in again",
+    "accountNotFound": "Account not found or deactivated"
+  },
+  "users": {
+    "retrieved": "Users retrieved",
+    "userRetrieved": "User retrieved",
+    "created": "User created successfully",
+    "updated": "User updated successfully",
+    "deleted": "User deleted successfully",
+    "notFound": "User not found",
+    "emailExists": "A user with that email already exists in this clinic",
+    "emailInUse": "Email is already in use",
+    "cannotDeleteSelf": "You cannot delete your own account",
+    "hasAppointments": "Cannot delete user: they have {{count}} appointment(s). Delete or reassign their appointments first",
+    "passwordUpdated": "Password updated",
+    "incorrectPassword": "Current password is incorrect",
+    "userInactive": "User is inactive"
+  },
+  "appointments": {
+    "retrieved": "Appointments retrieved",
+    "appointmentRetrieved": "Appointment retrieved",
+    "created": "Appointment created successfully",
+    "updated": "Appointment updated successfully",
+    "deleted": "Appointment deleted successfully",
+    "notFound": "Appointment not found",
+    "cannotUpdateStatus": "Cannot update an appointment with status \"{{status}}\"",
+    "cannotDeleteConfirmed": "Cannot delete a confirmed appointment. Cancel it first",
+    "userNotFound": "User not found",
+    "userInactive": "Cannot create appointment for an inactive user",
+    "noPermission": "You do not have permission to view this appointment"
+  },
+  "permissions": {
+    "required": "Permission '{{permission}}' is required",
+    "insufficientPermissions": "Insufficient permissions",
+    "oneRequired": "One of these permissions is required: {{permissions}}",
+    "missingPermissions": "Missing required permissions: {{permissions}}"
+  },
+  "validation": {
+    "invalidUuid": "Invalid UUID format",
+    "invalidEmail": "Invalid email address",
+    "required": "{{field}} is required",
+    "minLength": "{{field}} must be at least {{min}} characters",
+    "maxLength": "{{field}} must be at most {{max}} characters",
+    "min": "{{field}} must be at least {{min}}",
+    "max": "{{field}} must be at most {{max}}",
+    "invalidFormat": "Invalid {{field}} format",
+    "passwordRequirements": "Password must contain at least one uppercase letter and one number",
+    "appointments": {
+      "invalidDatetime": "Must be a valid ISO 8601 datetime string",
+      "mustBeFuture": "Scheduled time must be in the future",
+      "durationMustBeInteger": "Duration must be a whole number"
+    }
+  },
+  "health": {
+    "ok": "ok",
+    "degraded": "degraded"
+  }
+}

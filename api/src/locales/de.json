@@ -1,0 +1,80 @@
+{
+  "common": {
+    "success": "Erfolg",
+    "error": "Fehler",
+    "notFound": "Nicht gefunden",
+    "unauthorized": "Nicht autorisiert",
+    "forbidden": "Verboten",
+    "badRequest": "Ungültige Anfrage",
+    "conflict": "Konflikt",
+    "validationFailed": "Validierung fehlgeschlagen",
+    "internalError": "Interner Serverfehler"
+  },
+  "auth": {
+    "loginSuccess": "Anmeldung erfolgreich",
+    "logoutSuccess": "Abmeldung erfolgreich",
+    "logoutAllSuccess": "Von allen Geräten abgemeldet",
+    "tokenRefreshed": "Token aktualisiert",
+    "invalidCredentials": "Ungültige E-Mail oder Passwort",
+    "accountDeactivated": "Konto ist deaktiviert",
+    "invalidToken": "Ungültiges oder abgelaufenes Zugriffstoken",
+    "invalidRefreshToken": "Ungültiges Aktualisierungstoken",
+    "refreshTokenExpired": "Aktualisierungstoken abgelaufen. Bitte melden Sie sich erneut an",
+    "refreshTokenReused": "Aktualisierungstoken bereits verwendet. Bitte melden Sie sich erneut an",
+    "accountNotFound": "Konto nicht gefunden oder deaktiviert"
+  },
+  "users": {
+    "retrieved": "Benutzer abgerufen",
+    "userRetrieved": "Benutzer abgerufen",
+    "created": "Benutzer erfolgreich erstellt",
+    "updated": "Benutzer erfolgreich aktualisiert",
+    "deleted": "Benutzer erfolgreich gelöscht",
+    "notFound": "Benutzer nicht gefunden",
+    "emailExists": "Ein Benutzer mit dieser E-Mail existiert bereits in dieser Klinik",
+    "emailInUse": "E-Mail wird bereits verwendet",
+    "cannotDeleteSelf": "Sie können Ihr eigenes Konto nicht löschen",
+    "hasAppointments": "Benutzer kann nicht gelöscht werden: Er hat {{count}} Termin(e). Löschen oder weisen Sie seine Termine zuerst neu zu",
+    "passwordUpdated": "Passwort aktualisiert",
+    "incorrectPassword": "Aktuelles Passwort ist falsch",
+    "userInactive": "Benutzer ist inaktiv"
+  },
+  "appointments": {
+    "retrieved": "Termine abgerufen",
+    "appointmentRetrieved": "Termin abgerufen",
+    "created": "Termin erfolgreich erstellt",
+    "updated": "Termin erfolgreich aktualisiert",
+    "deleted": "Termin erfolgreich gelöscht",
+    "notFound": "Termin nicht gefunden",
+    "cannotUpdateStatus": "Ein Termin mit Status \"{{status}}\" kann nicht aktualisiert werden",
+    "cannotDeleteConfirmed": "Ein bestätigter Termin kann nicht gelöscht werden. Stornieren Sie ihn zuerst",
+    "userNotFound": "Benutzer nicht gefunden",
+    "userInactive": "Termin kann nicht für einen inaktiven Benutzer erstellt werden",
+    "noPermission": "Sie haben keine Berechtigung, diesen Termin anzuzeigen"
+  },
+  "permissions": {
+    "required": "Berechtigung '{{permission}}' ist erforderlich",
+    "insufficientPermissions": "Unzureichende Berechtigungen",
+    "oneRequired": "Eine dieser Berechtigungen ist erforderlich: {{permissions}}",
+    "missingPermissions": "Fehlende erforderliche Berechtigungen: {{permissions}}"
+  },
+  "validation": {
+    "invalidUuid": "Ungültiges UUID-Format",
+    "invalidEmail": "Ungültige E-Mail-Adresse",
+    "required": "{{field}} ist erforderlich",
+    "minLength": "{{field}} muss mindestens {{min}} Zeichen lang sein",
+    "maxLength": "{{field}} darf höchstens {{max}} Zeichen lang sein",
+    "min": "{{field}} muss mindestens {{min}} sein",
+    "max": "{{field}} darf höchstens {{max}} sein",
+    "invalidFormat": "Ungültiges {{field}}-Format",
+    "passwordRequirements": "Passwort muss mindestens einen Großbuchstaben und eine Zahl enthalten",
+    "appointments": {
+      "invalidDatetime": "Muss eine gültige ISO 8601 Datum-Zeit-Zeichenfolge sein",
+      "mustBeFuture": "Die geplante Zeit muss in der Zukunft liegen",
+      "durationMustBeInteger": "Die Dauer muss eine ganze Zahl sein"
+    }
+  },
+  "health": {
+    "ok": "ok",
+    "degraded": "beeinträchtigt"
+  }
+}
