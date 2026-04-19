@@ -18,7 +18,7 @@ export const generateOpaqueToken = (): string =>
 export const authRepository = {
   /** Persist a new refresh token row and return the raw token to send to client */
   async create(data: {
-    userId: string;
+    staffUserId: string;
     familyId: string;
     expiresAt: Date;
     userAgent?: string;
@@ -26,7 +26,7 @@ export const authRepository = {
   }): Promise<string> {
     const raw = generateOpaqueToken();
     await db.insert(refreshTokens).values({
-      userId: data.userId,
+      staffUserId: data.staffUserId,
       tokenHash: hashToken(raw),
       familyId: data.familyId,
       expiresAt: data.expiresAt,
@@ -67,11 +67,11 @@ export const authRepository = {
   },
 
   /** Revoke all tokens for a user — used on logout-all / account deactivation */
-  async revokeAllForUser(userId: string): Promise<void> {
+  async revokeAllForUser(staffUserId: string): Promise<void> {
     await db
       .update(refreshTokens)
       .set({ revokedAt: new Date() })
-      .where(eq(refreshTokens.userId, userId));
+      .where(eq(refreshTokens.staffUserId, staffUserId));
   },
 
   /** Purge expired tokens — run this on a cron job */
@@ -81,10 +81,10 @@ export const authRepository = {
       .where(lt(refreshTokens.expiresAt, new Date()));
   },
 
-  /** Hard-delete all tokens for a user — must be called before deleting the user (restrict FK) */
-  async deleteAllForUser(userId: string): Promise<void> {
+  /** Hard-delete all tokens for a staff user — called when hard-deleting a staff account */
+  async deleteAllForUser(staffUserId: string): Promise<void> {
     await db
       .delete(refreshTokens)
-      .where(eq(refreshTokens.userId, userId));
+      .where(eq(refreshTokens.staffUserId, staffUserId));
   },
 };

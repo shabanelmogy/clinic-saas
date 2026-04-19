@@ -7,38 +7,51 @@ import {
   unique,
   primaryKey,
 } from "drizzle-orm/pg-core";
-import { users } from "../users/user.schema.js";
+import { sql } from "drizzle-orm";
+import { staffUsers } from "../staff-users/staff-user.schema.js";
+import { clinics } from "../clinics/clinic.schema.js";
 
-// ─── Roles Table ──────────────────────────────────────────────────────────────
+// ─── Roles ────────────────────────────────────────────────────────────────────
 
-/**
- * Roles table.
- * clinicId = NULL  → global role (e.g. "Patient", "Super Admin")
- * clinicId = UUID  → clinic-specific role (e.g. "Doctor @ Clinic A")
- */
 export const roles = pgTable(
   "roles",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     name: varchar("name", { length: 100 }).notNull(),
     description: varchar("description", { length: 500 }),
-    clinicId: uuid("clinic_id"), // NULL = global role, UUID = clinic-specific role
+    clinicId: uuid("clinic_id")
+      .references(() => clinics.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => ({
-    nameClinicIdx: unique("roles_name_clinic_unique").on(t.name, t.clinicId),
+    /**
+     * ✅ FIX #2: Two partial unique indexes instead of one standard unique.
+     *
+     * Standard unique(name, clinicId) allows duplicate (name, NULL) rows because
+     * PostgreSQL treats NULL != NULL in unique constraints.
+     *
+     * Solution:
+     *   - Global roles (clinicId IS NULL): unique on name alone
+     *   - Clinic roles (clinicId IS NOT NULL): unique on (name, clinicId)
+     */
+    globalRoleNameUnique: unique("roles_global_name_unique")
+      .on(t.name)
+      .nullsNotDistinct(),
+    clinicRoleNameUnique: unique("roles_clinic_name_unique")
+      .on(t.name, t.clinicId)
+      .nullsNotDistinct(),
     clinicIdx: index("roles_clinic_idx").on(t.clinicId),
   })
 );
 
-// ─── Permissions Table (FIXED - Seeded) ──────────────────────────────────────
+// ─── Permissions ──────────────────────────────────────────────────────────────
 
 export const permissions = pgTable(
   "permissions",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    key: varchar("key", { length: 100 }).notNull().unique(), // e.g., "users:create"
+    key: varchar("key", { length: 100 }).notNull().unique(),
     name: varchar("name", { length: 100 }).notNull(),
     description: varchar("description", { length: 500 }),
     category: varchar("category", { length: 50 }).notNull(),
@@ -50,7 +63,7 @@ export const permissions = pgTable(
   })
 );
 
-// ─── Role Permissions (Many-to-Many) ──────────────────────────────────────────
+// ─── Role ↔ Permission (M:M) ──────────────────────────────────────────────────
 
 export const rolePermissions = pgTable(
   "role_permissions",
@@ -70,51 +83,54 @@ export const rolePermissions = pgTable(
   })
 );
 
-// ─── User Roles (Many-to-Many) ────────────────────────────────────────────────
+// ─── StaffUser ↔ Role (M:M) ───────────────────────────────────────────────────
 
-/**
- * User ↔ Role assignments.
- * Users are GLOBAL — a patient can have a global "Patient" role.
- * Clinic staff get clinic-specific roles via this same table.
- */
-export const userRoles = pgTable(
-  "user_roles",
+export const staffUserRoles = pgTable(
+  "staff_user_roles",
   {
-    userId: uuid("user_id")
+    id: uuid("id").primaryKey().defaultRandom(),
+    staffUserId: uuid("staff_user_id")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => staffUsers.id, { onDelete: "cascade" }),
     roleId: uuid("role_id")
       .notNull()
       .references(() => roles.id, { onDelete: "restrict" }),
-    // Optional: scope this assignment to a specific clinic
-    // NULL = global assignment (e.g. Patient role)
-    // UUID = clinic-scoped assignment (e.g. Doctor at Clinic A)
-    clinicId: uuid("clinic_id"),
+    clinicId: uuid("clinic_id")
+      .references(() => clinics.id, { onDelete: "cascade" }),
     assignedAt: timestamp("assigned_at", { withTimezone: true }).defaultNow().notNull(),
-    assignedBy: uuid("assigned_by").references(() => users.id, { onDelete: "set null" }),
+    assignedBy: uuid("assigned_by")
+      .references(() => staffUsers.id, { onDelete: "set null" }),
   },
   (t) => ({
-    pk: primaryKey({ columns: [t.userId, t.roleId] }),
-    userIdx: index("user_roles_user_idx").on(t.userId),
-    roleIdx: index("user_roles_role_idx").on(t.roleId),
-    clinicIdx: index("user_roles_clinic_idx").on(t.clinicId),
+    staffUserIdx: index("staff_user_roles_staff_user_idx").on(t.staffUserId),
+    roleIdx: index("staff_user_roles_role_idx").on(t.roleId),
+    clinicIdx: index("staff_user_roles_clinic_idx").on(t.clinicId),
+    /**
+     * ✅ FIX #1: Two partial unique indexes to handle NULL clinicId correctly.
+     *
+     * Standard unique(staffUserId, roleId, clinicId) allows duplicate global
+     * assignments because NULL != NULL in PostgreSQL unique constraints.
+     *
+     * Solution:
+     *   - Global assignments (clinicId IS NULL): unique on (staffUserId, roleId)
+     *   - Clinic assignments (clinicId IS NOT NULL): unique on (staffUserId, roleId, clinicId)
+     */
+    globalAssignmentUnique: unique("staff_user_roles_global_unique")
+      .on(t.staffUserId, t.roleId)
+      .nullsNotDistinct(),
+    clinicAssignmentUnique: unique("staff_user_roles_clinic_unique")
+      .on(t.staffUserId, t.roleId, t.clinicId)
+      .nullsNotDistinct(),
   })
 );
-
-// ─── Re-export User Types ─────────────────────────────────────────────────────
-
-export { users, type User, type NewUser } from "../users/user.schema.js";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type Role = typeof roles.$inferSelect;
 export type NewRole = typeof roles.$inferInsert;
-
 export type Permission = typeof permissions.$inferSelect;
 export type NewPermission = typeof permissions.$inferInsert;
-
 export type RolePermission = typeof rolePermissions.$inferSelect;
 export type NewRolePermission = typeof rolePermissions.$inferInsert;
-
-export type UserRole = typeof userRoles.$inferSelect;
-export type NewUserRole = typeof userRoles.$inferInsert;
+export type StaffUserRole = typeof staffUserRoles.$inferSelect;
+export type NewStaffUserRole = typeof staffUserRoles.$inferInsert;

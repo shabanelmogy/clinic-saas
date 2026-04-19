@@ -1,6 +1,7 @@
 # Module Creation Guide - Marketplace Architecture
 
-Based on the **appointments** module implementation.
+Based on the **appointments**, **doctors**, **patients**, and **clinics** module implementations.
+Last updated: 2026-04-19
 
 ---
 
@@ -9,25 +10,25 @@ Based on the **appointments** module implementation.
 ### Step 1: Determine Entity Type
 
 **Is this entity GLOBAL (shared across all clinics)?**
-- Examples: Users, Auth tokens
+- Examples: `staff_users`, Auth tokens
 - ✅ NO `clinicId` column
 - ✅ Email/username globally unique
 - ✅ Repository methods have NO `clinicId` parameter
-- → Use **Global Entity Pattern** (see users module)
+- → Use **Global Entity Pattern** (see `staff_users` module)
 
 **Is this entity CLINIC-OWNED (belongs to one clinic)?**
-- Examples: Services, Staff, Schedules
-- ✅ HAVE `clinicId` column
-- ✅ Always filtered by `clinicId`
+- Examples: Patients, Doctors, Schedules, Services
+- ✅ HAVE `clinicId` column — NOT NULL, FK to `clinics.id`
+- ✅ Always filtered by `clinicId` in every query
 - ✅ Repository methods ALWAYS accept `clinicId` parameter
-- → Use **Clinic-Owned Entity Pattern** (future modules)
+- → Use **Clinic-Owned Entity Pattern** (see `patients`, `doctors` modules)
 
 **Is this entity HYBRID (connects global and clinic entities)?**
 - Examples: Appointments (connect patients to clinics)
-- ✅ HAVE both `patientId` (global) and `clinicId` (clinic-owned)
+- ✅ HAVE both `patientId` (clinic-owned) and `clinicId` (tenant)
 - ✅ Dual-access pattern (patient vs staff)
 - ✅ Context-aware repository methods
-- → Use **Hybrid Entity Pattern** (see appointments module)
+- → Use **Hybrid Entity Pattern** (see `appointments` module)
 
 ---
 
@@ -52,73 +53,247 @@ api/src/modules/<name>/
 ### Hybrid Entity Example (Appointments)
 
 ```typescript
-import { pgTable, uuid, varchar, timestamp, pgEnum, index } from "drizzle-orm/pg-core";
-import { users } from "../users/user.schema.js";
+import { pgTable, uuid, varchar, timestamp, pgEnum, index, unique, check } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { clinics } from "../clinics/clinic.schema.js";
+import { patients } from "../patients/patient.schema.js";
+import { doctors } from "../doctors/doctor.schema.js";
 
-// Define enums
+// ─── Enums ────────────────────────────────────────────────────────────────────
+// Always use pgEnum for fixed value sets — never varchar for status/type/role
 export const appointmentStatusEnum = pgEnum("appointment_status", [
-  "pending",
-  "confirmed",
-  "cancelled",
-  "completed",
+  "pending", "confirmed", "cancelled", "completed", "no_show",
 ]);
 
-// Define table
+// ─── Table ────────────────────────────────────────────────────────────────────
 export const appointments = pgTable(
   "appointments",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    
-    // ✅ Clinic-owned: which clinic owns this appointment
+
+    // ✅ Tenant isolation — always required, never nullable
     clinicId: uuid("clinic_id")
       .notNull()
       .references(() => clinics.id, { onDelete: "restrict" }),
-    
-    // ✅ Global patient: NOT scoped to a clinic
+
+    // ✅ Clinic-owned patient — NOT a global staff_user
     patientId: uuid("patient_id")
       .notNull()
-      .references(() => users.id, { onDelete: "restrict" }),
-    
+      .references(() => patients.id, { onDelete: "restrict" }),
+
+    // ✅ Optional FK — nullable FKs use onDelete: "set null"
+    doctorId: uuid("doctor_id")
+      .references(() => doctors.id, { onDelete: "set null" }),
+
     title: varchar("title", { length: 200 }).notNull(),
     scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull(),
+    durationMinutes: integer("duration_minutes").default(60).notNull(),
     status: appointmentStatusEnum("status").default("pending").notNull(),
-    
+    notes: text("notes"),
+
+    // ✅ Soft-delete — never hard-delete business records
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+
+    // ✅ Always include both timestamps with timezone
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => ({
-    // Indexes for clinic-side queries
+    // ── Foreign key indexes (required on every FK column) ──────────────────
     clinicIdx: index("appointments_clinic_idx").on(t.clinicId),
-    clinicScheduledIdx: index("appointments_clinic_scheduled_idx").on(t.clinicId, t.scheduledAt),
-    
-    // Indexes for patient-side queries
     patientIdx: index("appointments_patient_idx").on(t.patientId),
-    patientScheduledIdx: index("appointments_patient_scheduled_idx").on(t.patientId, t.scheduledAt),
-    
-    // General indexes
+    doctorIdx: index("appointments_doctor_idx").on(t.doctorId),
+
+    // ── Single-column indexes for common WHERE filters ─────────────────────
     scheduledAtIdx: index("appointments_scheduled_at_idx").on(t.scheduledAt),
     statusIdx: index("appointments_status_idx").on(t.status),
+
+    // ── Composite indexes for common query patterns ────────────────────────
+    // Staff dashboard: clinic appointments by time (partial — excludes deleted)
+    clinicScheduledIdx: index("appointments_clinic_scheduled_idx")
+      .on(t.clinicId, t.scheduledAt)
+      .where(sql`${t.deletedAt} IS NULL`),
+
+    // Staff filter by status
+    clinicStatusIdx: index("appointments_clinic_status_idx")
+      .on(t.clinicId, t.status)
+      .where(sql`${t.deletedAt} IS NULL`),
+
+    // Patient history view
+    clinicPatientIdx: index("appointments_clinic_patient_idx")
+      .on(t.clinicId, t.patientId)
+      .where(sql`${t.deletedAt} IS NULL`),
+
+    // Doctor schedule view — overlap detection
+    doctorScheduledIdx: index("appointments_doctor_scheduled_idx")
+      .on(t.doctorId, t.scheduledAt)
+      .where(sql`${t.deletedAt} IS NULL AND ${t.status} NOT IN ('cancelled', 'no_show')`),
+
+    // ── Unique constraints ─────────────────────────────────────────────────
+    // Prevent double-booking: same doctor cannot have two appointments at same time
+    doctorDoubleBookingUnique: unique("appointments_doctor_no_double_booking")
+      .on(t.doctorId, t.scheduledAt, t.clinicId)
+      .nullsNotDistinct(),
+
+    // ── CHECK constraints ──────────────────────────────────────────────────
+    durationCheck: check(
+      "chk_appointment_duration",
+      sql`${t.durationMinutes} > 0 AND ${t.durationMinutes} <= 480`
+    ),
   })
 );
 
-// Export types
 export type Appointment = typeof appointments.$inferSelect;
 export type NewAppointment = typeof appointments.$inferInsert;
 ```
 
+---
+
+### 🗂️ Index Strategy Reference
+
+Every schema must follow this index decision tree:
+
+#### 1. Foreign Key Indexes — ALWAYS required
+Every FK column must have an index. PostgreSQL does not auto-index FKs.
+```typescript
+// ✅ Every FK gets an index
+clinicIdx: index("table_clinic_idx").on(t.clinicId),
+patientIdx: index("table_patient_idx").on(t.patientId),
+doctorIdx: index("table_doctor_idx").on(t.doctorId),
+```
+
+#### 2. Search Indexes — for text search columns
+Use `ilike` in queries? Add an index. For case-insensitive search, use a functional index.
+```typescript
+// Standard index — works with ilike('%term%') but only for prefix searches
+nameIdx: index("table_name_idx").on(t.name),
+
+// For full ilike('%term%') performance at scale, use pg_trgm extension:
+// CREATE INDEX table_name_trgm_idx ON table USING gin(name gin_trgm_ops);
+// Note: Drizzle doesn't support gin indexes natively — add via raw SQL migration.
+```
+
+#### 3. Composite Indexes — for multi-column WHERE clauses
+Column order matters: put the most selective column first, then the sort column.
+```typescript
+// ✅ Covers: WHERE clinic_id = ? AND scheduled_at > ?
+clinicScheduledIdx: index("table_clinic_scheduled_idx").on(t.clinicId, t.scheduledAt),
+
+// ✅ Covers: WHERE clinic_id = ? AND status = ?
+clinicStatusIdx: index("table_clinic_status_idx").on(t.clinicId, t.status),
+
+// ✅ Covers: WHERE clinic_id = ? AND specialty = ?
+clinicSpecialtyIdx: index("table_clinic_specialty_idx").on(t.clinicId, t.specialty),
+```
+
+#### 4. Partial Indexes — for soft-delete and filtered queries
+Partial indexes are smaller and faster than full indexes when most rows are excluded.
+```typescript
+// ✅ Only index active (non-deleted) rows — much smaller index
+clinicActiveIdx: index("table_clinic_active_idx")
+  .on(t.clinicId, t.isActive)
+  .where(sql`${t.deletedAt} IS NULL`),
+
+// ✅ Marketplace query: published + active + not deleted
+marketplaceIdx: index("table_marketplace_idx")
+  .on(t.isPublished, t.isActive)
+  .where(sql`${t.deletedAt} IS NULL`),
+```
+
+#### 5. Unique Constraints — duplication prevention rules
+
+**Standard unique (non-nullable columns):**
+```typescript
+// Simple unique — email must be globally unique
+emailUnique: unique("table_email_unique").on(t.email),
+
+// Composite unique — name must be unique per clinic
+nameClinicUnique: unique("table_name_clinic_unique").on(t.name, t.clinicId),
+```
+
+**Partial unique (nullable columns) — CRITICAL:**
+PostgreSQL treats `NULL != NULL` in unique constraints.
+`unique(email, clinicId)` allows unlimited `(NULL, clinicId)` rows — the constraint is silently bypassed.
+Always use `.nullsNotDistinct()` or document the NULL behavior explicitly.
+
+```typescript
+// ✅ Email unique per clinic — only enforced when email IS NOT NULL
+emailClinicUnique: unique("patients_email_clinic_unique")
+  .on(t.email, t.clinicId)
+  .nullsNotDistinct(),
+
+// ✅ Slug unique — freed when clinic is soft-deleted
+slugActiveUnique: unique("clinics_slug_active_unique")
+  .on(t.slug)
+  .nullsNotDistinct(),
+```
+
+**Global vs clinic-scoped NULL-safe unique (RBAC pattern):**
+```typescript
+// ✅ Global assignments (clinicId IS NULL): unique on (staffUserId, roleId)
+globalAssignmentUnique: unique("staff_user_roles_global_unique")
+  .on(t.staffUserId, t.roleId)
+  .nullsNotDistinct(),
+
+// ✅ Clinic assignments (clinicId IS NOT NULL): unique on (staffUserId, roleId, clinicId)
+clinicAssignmentUnique: unique("staff_user_roles_clinic_unique")
+  .on(t.staffUserId, t.roleId, t.clinicId)
+  .nullsNotDistinct(),
+```
+
+#### 6. CHECK Constraints — data integrity at DB level
+```typescript
+// ✅ Numeric bounds
+durationCheck: check("chk_duration", sql`${t.durationMinutes} > 0 AND ${t.durationMinutes} <= 480`),
+feeCheck: check("chk_fee", sql`${t.consultationFee} IS NULL OR ${t.consultationFee} >= 0`),
+experienceCheck: check("chk_experience", sql`${t.experienceYears} IS NULL OR (${t.experienceYears} >= 0 AND ${t.experienceYears} <= 70)`),
+
+// ✅ Time ordering (schedules)
+timeOrderCheck: check("chk_time_order", sql`${t.endTime} > ${t.startTime}`),
+```
+
+---
+
 ### ✅ Schema Checklist
 
+**Structure:**
 - [ ] Use `uuid("id").primaryKey().defaultRandom()` for ID
-- [ ] Add `createdAt` and `updatedAt` timestamps with `{ withTimezone: true }`
-- [ ] Use `pgEnum` for fixed value sets (status, type, role)
+- [ ] Add `createdAt` and `updatedAt` with `{ withTimezone: true }` and `.notNull()`
+- [ ] Add `deletedAt` timestamp for soft-delete (null = active)
+- [ ] Use `pgEnum` for ALL fixed value sets — never `varchar` for status/type/role
 - [ ] Import tables from module schemas, NOT from `db/schema.ts`
-- [ ] Use `.references()` with `onDelete: "restrict"` for all FKs
-- [ ] Add indexes on ALL foreign keys
-- [ ] Add indexes on columns used in WHERE clauses
-- [ ] Add composite indexes for common query patterns
-- [ ] Export types: `Type` and `NewType`
-- [ ] Register in `src/db/schema.ts`: `export * from "../modules/<name>/<name>.schema.js";`
+- [ ] Register in `src/db/schema.ts`
+
+**Foreign Keys:**
+- [ ] Required FKs: `.notNull().references(() => table.id, { onDelete: "restrict" })`
+- [ ] Optional FKs: `.references(() => table.id, { onDelete: "set null" })`
+- [ ] Cascade FKs (child data): `.references(() => table.id, { onDelete: "cascade" })`
+- [ ] Auth tokens: use `onDelete: "cascade"` NOT `"restrict"` (blocks user deletion)
+- [ ] Every FK column has a corresponding index
+
+**Indexes:**
+- [ ] Index on every FK column
+- [ ] Index on every column used in WHERE clauses (status, isActive, scheduledAt)
+- [ ] Composite index for every multi-column query pattern
+- [ ] Partial index (`.where(sql\`deleted_at IS NULL\`\`)) for soft-deleted tables
+- [ ] Search columns (name, email) have an index
+
+**Unique Constraints:**
+- [ ] Unique on email/slug for global entities
+- [ ] Composite unique `(field, clinicId)` for clinic-scoped uniqueness
+- [ ] Use `.nullsNotDistinct()` on any unique that includes a nullable column
+- [ ] For NULL-able FK uniques (RBAC): use two separate uniques (global + clinic-scoped)
+
+**CHECK Constraints:**
+- [ ] Numeric fields with bounds have `CHECK` constraints
+- [ ] Time-ordered fields (startTime/endTime) have ordering `CHECK`
+- [ ] Duration/fee/count fields have minimum value `CHECK`
+
+**Duplication Prevention:**
+- [ ] Identify all "one per X" rules and add unique constraints
+- [ ] Double-booking: unique on `(doctorId, scheduledAt, clinicId)` for appointments
+- [ ] One schedule per day: unique on `(doctorId, dayOfWeek)`
+- [ ] One staff account per doctor per clinic: unique on `(staffUserId, clinicId)`
 
 ---
 
@@ -335,6 +510,37 @@ export const appointmentRepository = {
 - [ ] Use `.returning()` for create/update/delete
 - [ ] Set `updatedAt: new Date()` explicitly on updates
 - [ ] For hybrid entities: create separate methods for each access pattern
+- [ ] **Always filter `deletedAt IS NULL`** in list and findById queries
+- [ ] Soft-delete sets `deletedAt = new Date()` — never use `db.delete()` for business records
+- [ ] Search queries use `ilike` with `%term%` and have a corresponding index on the column
+- [ ] Verify cross-tenant integrity before insert: `patient.clinicId === appointment.clinicId`
+
+### 🗑️ Soft-Delete Pattern in Repository
+
+```typescript
+import { isNull, sql } from "drizzle-orm";
+
+// ✅ Always exclude soft-deleted rows in list queries
+const conditions: SQL[] = [
+  eq(table.clinicId, clinicId),
+  isNull(table.deletedAt),   // exclude soft-deleted
+];
+
+// ✅ Soft-delete — never hard-delete business records
+async softDelete(id: string, clinicId: string): Promise<boolean> {
+  const result = await db
+    .update(table)
+    .set({ deletedAt: new Date(), updatedAt: new Date() })
+    .where(and(eq(table.id, id), eq(table.clinicId, clinicId), isNull(table.deletedAt)))
+    .returning();
+  return result.length > 0;
+},
+
+// ✅ Search with ilike — requires index on the searched column
+if (search) {
+  conditions.push(ilike(table.name, `%${search}%`));
+}
+```
 
 ---
 
@@ -473,12 +679,38 @@ export const appointmentService = {
 - [ ] All methods accept `t: TranslateFn` parameter
 - [ ] All error messages use translation keys
 - [ ] Check permissions before operations
-- [ ] Check existence before update/delete
-- [ ] Check for conflicts before create
+- [ ] Check existence before update/delete (use `isNull(deletedAt)` in lookup)
+- [ ] **Check for duplicates before create** — query for existing record with same unique fields
+- [ ] **Verify cross-tenant integrity** — confirm `patient.clinicId === input.clinicId` before insert
+- [ ] **Verify referenced entities belong to same clinic** — doctor, patient, schedule must all share `clinicId`
 - [ ] Use `!== undefined` for falsy value checks
 - [ ] Log all important actions (create, update, delete)
 - [ ] Use `logger.info()` for normal ops, `logger.warn()` for deletes
 - [ ] For hybrid entities: branch logic based on `context.userType`
+
+### 🔒 Duplication & Cross-Tenant Guard Pattern
+
+```typescript
+// ✅ Check for duplicate before create (e.g. patient email per clinic)
+const existing = await patientRepository.findByEmail(input.email, context.clinicId);
+if (existing) throw new ConflictError(t("patients.emailExists"));
+
+// ✅ Cross-tenant integrity check — doctor must belong to same clinic
+if (input.doctorId) {
+  const doctor = await doctorRepository.findById(input.doctorId, context.clinicId);
+  if (!doctor) throw new BadRequestError(t("appointments.doctorNotInClinic"));
+}
+
+// ✅ Double-booking check — before inserting appointment
+if (input.doctorId) {
+  const conflict = await appointmentRepository.findConflict(
+    input.doctorId,
+    input.scheduledAt,
+    context.clinicId
+  );
+  if (conflict) throw new ConflictError(t("appointments.doctorNotAvailable"));
+}
+```
 
 ---
 
@@ -696,24 +928,50 @@ npm run db:migrate
 
 ## 🎯 Key Principles
 
-1. **Context-Aware Access** - Different logic for patient vs staff
-2. **Dual-Access Pattern** - Separate repository methods for each access pattern
-3. **Translation Keys** - ALL user-facing messages use i18n
-4. **Permission Checks** - ALWAYS check permissions in service layer
-5. **Structured Logging** - Log all important actions with context
-6. **Type Safety** - Use TypeScript types throughout
-7. **Validation** - Validate at the edge (routes), enforce in service
+1. **Context-Aware Access** — Different logic for patient vs staff
+2. **Dual-Access Pattern** — Separate repository methods for each access pattern
+3. **Translation Keys** — ALL user-facing messages use i18n
+4. **Permission Checks** — ALWAYS check permissions in service layer
+5. **Structured Logging** — Log all important actions with context
+6. **Type Safety** — Use TypeScript types throughout
+7. **Validation** — Validate at the edge (routes), enforce in service
+8. **Soft-Delete** — Never hard-delete business records; use `deletedAt` timestamp
+9. **Index Everything** — Every FK, every WHERE column, every search column
+10. **Prevent Duplication** — Unique constraints at DB level + duplicate checks in service
+11. **Tenant Isolation** — Every clinic-owned query starts with `clinicId` filter; verify cross-entity clinic ownership before insert
+12. **NULL-Safe Uniques** — Use `.nullsNotDistinct()` on any unique constraint that includes a nullable column
+
+---
+
+## ⚠️ Common Mistakes to Avoid
+
+| Mistake | Correct Approach |
+|---|---|
+| `varchar` for status/type/role | Use `pgEnum` |
+| Missing index on FK column | Index every FK |
+| `unique(field, clinicId)` with nullable field | Add `.nullsNotDistinct()` |
+| `unique(staffUserId, roleId, clinicId)` with nullable clinicId | Two separate uniques: global + clinic-scoped |
+| `onDelete: "restrict"` on auth tokens | Use `onDelete: "cascade"` |
+| Hard-deleting business records | Set `deletedAt = new Date()` |
+| Not filtering `deletedAt IS NULL` in queries | Always add `isNull(table.deletedAt)` |
+| Inserting appointment without checking doctor's clinic | Verify `doctor.clinicId === appointment.clinicId` |
+| Free-text search without index | Add index on searched column |
+| No CHECK on numeric bounds | Add `CHECK` for fees, durations, counts |
+| Duplicate global role names | Separate unique for `(name)` where `clinicId IS NULL` |
 
 ---
 
 ## 📚 Reference Modules
 
-- **Global Entity:** `api/src/modules/users/` - Users (no clinicId)
-- **Hybrid Entity:** `api/src/modules/appointments/` - Appointments (dual access)
-- **Clinic-Owned Entity:** Future modules (services, schedules)
+- **Global Entity:** `api/src/modules/staff-users/` — StaffUsers (no clinicId, full RBAC)
+- **Clinic-Owned Entity:** `api/src/modules/patients/` — Patients (clinicId required, no RBAC)
+- **Clinic-Owned Entity:** `api/src/modules/doctors/` — Doctors (clinicId required, specialty enum)
+- **Child Entity:** `api/src/modules/doctors/doctor-schedule.schema.ts` — Schedules (cascades from doctor)
+- **Hybrid Entity:** `api/src/modules/appointments/` — Appointments (dual access + audit history)
+- **RBAC:** `api/src/modules/rbac/` — Roles, Permissions, StaffUserRoles
 
 ---
 
-**Date:** 2026-04-18  
-**Based on:** Appointments module implementation  
-**Architecture:** Marketplace + Multi-Tenant Hybrid
+**Date:** 2026-04-19
+**Based on:** appointments, doctors, patients, clinics, staff-users, rbac modules
+**Architecture:** Marketplace + Multi-Tenant + Hardened Production Schema

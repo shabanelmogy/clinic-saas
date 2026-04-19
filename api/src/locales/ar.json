@@ -21,7 +21,8 @@
     "invalidRefreshToken": "رمز التحديث غير صالح",
     "refreshTokenExpired": "انتهت صلاحية رمز التحديث. يرجى تسجيل الدخول مرة أخرى",
     "refreshTokenReused": "تم استخدام رمز التحديث بالفعل. يرجى تسجيل الدخول مرة أخرى",
-    "accountNotFound": "الحساب غير موجود أو معطل"
+    "accountNotFound": "الحساب غير موجود أو معطل",
+    "clinicRequired": "مطلوب رمز مرتبط بعيادة لهذا الإجراء"
   },
   "users": {
     "retrieved": "تم استرجاع المستخدمين",
@@ -38,6 +39,19 @@
     "incorrectPassword": "كلمة المرور الحالية غير صحيحة",
     "userInactive": "المستخدم غير نشط"
   },
+  "staffUsers": {
+    "retrieved": "تم استرجاع موظفي النظام",
+    "staffUserRetrieved": "تم استرجاع موظف النظام",
+    "created": "تم إنشاء موظف النظام بنجاح",
+    "updated": "تم تحديث موظف النظام بنجاح",
+    "deleted": "تم حذف موظف النظام بنجاح",
+    "notFound": "موظف النظام غير موجود",
+    "emailExists": "يوجد موظف بهذا البريد الإلكتروني بالفعل",
+    "emailInUse": "البريد الإلكتروني مستخدم بالفعل",
+    "cannotDeleteSelf": "لا يمكنك حذف حسابك الخاص",
+    "incorrectPassword": "كلمة المرور الحالية غير صحيحة",
+    "passwordUpdated": "تم تغيير كلمة المرور بنجاح. يرجى تسجيل الدخول مرة أخرى."
+  },
   "appointments": {
     "retrieved": "تم استرجاع المواعيد",
     "appointmentRetrieved": "تم استرجاع الموعد",
@@ -45,6 +59,7 @@
     "updated": "تم تحديث الموعد بنجاح",
     "deleted": "تم حذف الموعد بنجاح",
     "notFound": "الموعد غير موجود",
+    "clinicNotFound": "العيادة غير موجودة أو لا تقبل الحجوزات",
     "cannotUpdateStatus": "لا يمكن تحديث موعد بحالة \"{{status}}\"",
     "cannotDeleteConfirmed": "لا يمكن حذف موعد مؤكد. قم بإلغائه أولاً",
     "userNotFound": "المستخدم غير موجود",
@@ -71,7 +86,59 @@
       "invalidDatetime": "يجب أن يكون سلسلة تاريخ ووقت ISO 8601 صالحة",
       "mustBeFuture": "يجب أن يكون الوقت المحدد في المستقبل",
       "durationMustBeInteger": "يجب أن تكون المدة رقمًا صحيحًا"
+    },
+    "clinics": {
+      "invalidUrl": "يجب أن يكون عنوان URL صالحًا"
+    },
+    "doctors": {
+      "invalidTime": "يجب أن يكون وقتًا صالحًا بتنسيق HH:MM"
     }
+  },
+  "clinics": {
+    "retrieved": "تم استرجاع العيادات",
+    "clinicRetrieved": "تم استرجاع العيادة",
+    "updated": "تم تحديث العيادة بنجاح",
+    "notFound": "العيادة غير موجودة"
+  },
+  "patients": {
+    "retrieved": "تم استرجاع المرضى",
+    "patientRetrieved": "تم استرجاع المريض",
+    "created": "تم إضافة المريض بنجاح",
+    "updated": "تم تحديث المريض بنجاح",
+    "deleted": "تم حذف المريض بنجاح",
+    "notFound": "المريض غير موجود",
+    "emailExists": "يوجد مريض بهذا البريد الإلكتروني بالفعل في هذه العيادة",
+    "nationalIdExists": "يوجد مريض بهذا الرقم الوطني بالفعل في هذه العيادة"
+  },
+  "doctors": {
+    "retrieved": "تم استرجاع الأطباء",
+    "doctorRetrieved": "تم استرجاع الطبيب",
+    "created": "تم إضافة الطبيب بنجاح",
+    "updated": "تم تحديث الطبيب بنجاح",
+    "deleted": "تم حذف الطبيب بنجاح",
+    "notFound": "الطبيب غير موجود",
+    "schedulesRetrieved": "تم استرجاع الجداول",
+    "scheduleUpdated": "تم تحديث الجدول بنجاح",
+    "scheduleDeleted": "تم حذف الجدول بنجاح",
+    "scheduleNotFound": "الجدول غير موجود",
+    "invalidScheduleTime": "يجب أن يكون وقت البداية قبل وقت النهاية"
+  },
+  "patientProfiles": {
+    "retrieved": "تم استرجاع ملف المريض",
+    "updated": "تم تحديث ملف المريض بنجاح",
+    "notFound": "ملف المريض غير موجود"
+  },
+  "slotTimes": {
+    "retrieved": "تم استرجاع المواعيد المتاحة",
+    "generated": "تم إنشاء المواعيد بنجاح",
+    "booked": "تم حجز الموعد بنجاح",
+    "released": "تم تحرير الموعد بنجاح",
+    "updated": "تم تحديث الموعد بنجاح",
+    "notFound": "الموعد غير موجود",
+    "notAvailable": "الموعد لم يعد متاحاً",
+    "notBooked": "الموعد غير محجوز",
+    "cannotModifyBooked": "لا يمكن تعديل موعد محجوز",
+    "invalidDateRange": "يجب أن يكون تاريخ الانتهاء بعد تاريخ البداية"
   },
   "health": {
     "ok": "جيد",

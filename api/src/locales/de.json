@@ -21,7 +21,8 @@
     "invalidRefreshToken": "Ungültiges Aktualisierungstoken",
     "refreshTokenExpired": "Aktualisierungstoken abgelaufen. Bitte melden Sie sich erneut an",
     "refreshTokenReused": "Aktualisierungstoken bereits verwendet. Bitte melden Sie sich erneut an",
-    "accountNotFound": "Konto nicht gefunden oder deaktiviert"
+    "accountNotFound": "Konto nicht gefunden oder deaktiviert",
+    "clinicRequired": "Ein klinikgebundenes Token ist für diese Aktion erforderlich"
   },
   "users": {
     "retrieved": "Benutzer abgerufen",
@@ -38,6 +39,19 @@
     "incorrectPassword": "Aktuelles Passwort ist falsch",
     "userInactive": "Benutzer ist inaktiv"
   },
+  "staffUsers": {
+    "retrieved": "Systemmitarbeiter abgerufen",
+    "staffUserRetrieved": "Systemmitarbeiter abgerufen",
+    "created": "Systemmitarbeiter erfolgreich erstellt",
+    "updated": "Systemmitarbeiter erfolgreich aktualisiert",
+    "deleted": "Systemmitarbeiter erfolgreich gelöscht",
+    "notFound": "Systemmitarbeiter nicht gefunden",
+    "emailExists": "Ein Systemmitarbeiter mit dieser E-Mail existiert bereits",
+    "emailInUse": "E-Mail wird bereits verwendet",
+    "cannotDeleteSelf": "Sie können Ihr eigenes Konto nicht löschen",
+    "incorrectPassword": "Aktuelles Passwort ist falsch",
+    "passwordUpdated": "Passwort erfolgreich geändert. Bitte melden Sie sich erneut an."
+  },
   "appointments": {
     "retrieved": "Termine abgerufen",
     "appointmentRetrieved": "Termin abgerufen",
@@ -45,6 +59,7 @@
     "updated": "Termin erfolgreich aktualisiert",
     "deleted": "Termin erfolgreich gelöscht",
     "notFound": "Termin nicht gefunden",
+    "clinicNotFound": "Klinik nicht gefunden oder nimmt keine Buchungen an",
     "cannotUpdateStatus": "Ein Termin mit Status \"{{status}}\" kann nicht aktualisiert werden",
     "cannotDeleteConfirmed": "Ein bestätigter Termin kann nicht gelöscht werden. Stornieren Sie ihn zuerst",
     "userNotFound": "Benutzer nicht gefunden",
@@ -71,7 +86,59 @@
       "invalidDatetime": "Muss eine gültige ISO 8601 Datum-Zeit-Zeichenfolge sein",
       "mustBeFuture": "Die geplante Zeit muss in der Zukunft liegen",
       "durationMustBeInteger": "Die Dauer muss eine ganze Zahl sein"
+    },
+    "clinics": {
+      "invalidUrl": "Muss eine gültige URL sein"
+    },
+    "doctors": {
+      "invalidTime": "Muss eine gültige Uhrzeit im Format HH:MM sein"
     }
+  },
+  "clinics": {
+    "retrieved": "Kliniken abgerufen",
+    "clinicRetrieved": "Klinik abgerufen",
+    "updated": "Klinik erfolgreich aktualisiert",
+    "notFound": "Klinik nicht gefunden"
+  },
+  "patients": {
+    "retrieved": "Patienten abgerufen",
+    "patientRetrieved": "Patient abgerufen",
+    "created": "Patient erfolgreich erstellt",
+    "updated": "Patient erfolgreich aktualisiert",
+    "deleted": "Patient erfolgreich gelöscht",
+    "notFound": "Patient nicht gefunden",
+    "emailExists": "Ein Patient mit dieser E-Mail existiert bereits in dieser Klinik",
+    "nationalIdExists": "Ein Patient mit dieser nationalen ID existiert bereits in dieser Klinik"
+  },
+  "doctors": {
+    "retrieved": "Ärzte abgerufen",
+    "doctorRetrieved": "Arzt abgerufen",
+    "created": "Arzt erfolgreich erstellt",
+    "updated": "Arzt erfolgreich aktualisiert",
+    "deleted": "Arzt erfolgreich gelöscht",
+    "notFound": "Arzt nicht gefunden",
+    "schedulesRetrieved": "Zeitpläne abgerufen",
+    "scheduleUpdated": "Zeitplan erfolgreich aktualisiert",
+    "scheduleDeleted": "Zeitplan erfolgreich gelöscht",
+    "scheduleNotFound": "Zeitplan nicht gefunden",
+    "invalidScheduleTime": "Startzeit muss vor Endzeit liegen"
+  },
+  "patientProfiles": {
+    "retrieved": "Patientenprofil abgerufen",
+    "updated": "Patientenprofil erfolgreich aktualisiert",
+    "notFound": "Patientenprofil nicht gefunden"
+  },
+  "slotTimes": {
+    "retrieved": "Zeitfenster abgerufen",
+    "generated": "Zeitfenster erfolgreich generiert",
+    "booked": "Zeitfenster erfolgreich gebucht",
+    "released": "Zeitfenster erfolgreich freigegeben",
+    "updated": "Zeitfenster erfolgreich aktualisiert",
+    "notFound": "Zeitfenster nicht gefunden",
+    "notAvailable": "Zeitfenster ist nicht mehr verfügbar",
+    "notBooked": "Zeitfenster ist nicht gebucht",
+    "cannotModifyBooked": "Gebuchtes Zeitfenster kann nicht geändert werden",
+    "invalidDateRange": "Enddatum muss nach Startdatum liegen"
   },
   "health": {
     "ok": "ok",

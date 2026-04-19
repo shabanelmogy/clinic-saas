@@ -1,10 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
-import { verifyAccessToken, type JwtPayloadRBAC } from "./jwt-rbac.js";
+import { type JwtPayloadRBAC } from "./jwt-rbac.js";
 import { sendError } from "../../utils/response.js";
 import { ForbiddenError, UnauthorizedError } from "../../utils/errors.js";
 import { logger } from "../../utils/logger.js";
 
-// Extend Express Request to carry RBAC user context
+// ─── Type augmentation (shared with auth.middleware.ts) ───────────────────────
+
 declare global {
   namespace Express {
     interface Request {
@@ -14,51 +15,14 @@ declare global {
   }
 }
 
-/**
- * Authenticate middleware
- * 
- * Verifies JWT and attaches user context to request.
- * Does NOT check permissions - use authorize() for that.
- */
-export const authenticate = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader?.startsWith("Bearer ")) {
-    sendError(res, req.t("auth.invalidToken"), 401);
-    return;
-  }
-
-  const token = authHeader.slice(7);
-
-  try {
-    const payload = verifyAccessToken(token);
-    req.user = payload;
-    req.clinicId = payload.clinicId;
-    next();
-  } catch (err) {
-    if (err instanceof UnauthorizedError) {
-      sendError(res, err.message, 401);
-    } else {
-      next(err);
-    }
-  }
-};
+// ─── Route-level middleware ───────────────────────────────────────────────────
 
 /**
- * Permission-based authorization middleware
- * 
- * Checks if user has required permission.
- * Permissions are read from JWT (no database query).
- * 
+ * Require a single permission.
+ * Reads from JWT — zero DB queries.
+ *
  * Usage:
- *   router.post("/users", authenticate, authorize("users:create"), controller.create)
- *   router.delete("/users/:id", authenticate, authorize("users:delete"), controller.delete)
- * 
- * @param permission - Permission key (e.g., "users:create")
+ *   router.post("/", authenticate, authorize("appointments:create"), controller.create)
  */
 export const authorize = (permission: string) =>
   (req: Request, res: Response, next: NextFunction): void => {
@@ -67,23 +31,17 @@ export const authorize = (permission: string) =>
       return;
     }
 
-    // Check if user has the required permission
     if (!req.user.permissions.includes(permission)) {
-      const err = new ForbiddenError(
-        req.t("permissions.required", { permission })
-      );
-
       logger.warn({
-        msg: "Authorization failed - insufficient permission",
-        userId: req.user.userId,
+        msg: "Authorization failed — missing permission",
+        staffUserId: req.user.userId,
         clinicId: req.user.clinicId,
-        userPermissions: req.user.permissions,
-        requiredPermission: permission,
+        required: permission,
+        has: req.user.permissions,
         path: req.path,
         method: req.method,
       });
-
-      sendError(res, err.message, 403);
+      sendError(res, req.t("permissions.required", { permission }), 403);
       return;
     }
 
@@ -91,41 +49,31 @@ export const authorize = (permission: string) =>
   };
 
 /**
- * Require ANY of the specified permissions
- * 
+ * Require ANY of the listed permissions (OR logic).
+ *
  * Usage:
- *   router.get("/appointments", authenticate, authorizeAny([
- *     "appointments:view_all",
- *     "appointments:view_own"
- *   ]), controller.list)
+ *   router.get("/", authenticate, authorizeAny(["appointments:view_all", "appointments:view_own"]), controller.list)
  */
-export const authorizeAny = (permissions: string[]) =>
+export const authorizeAny = (required: string[]) =>
   (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       sendError(res, req.t("common.unauthorized"), 401);
       return;
     }
 
-    const hasAny = permissions.some((perm) =>
-      req.user!.permissions.includes(perm)
-    );
+    const hasAny = required.some((p) => req.user!.permissions.includes(p));
 
     if (!hasAny) {
-      const err = new ForbiddenError(
-        req.t("permissions.oneRequired", { permissions: permissions.join(", ") })
-      );
-
       logger.warn({
-        msg: "Authorization failed - no matching permission",
-        userId: req.user.userId,
+        msg: "Authorization failed — none of required permissions present",
+        staffUserId: req.user.userId,
         clinicId: req.user.clinicId,
-        userPermissions: req.user.permissions,
-        requiredPermissions: permissions,
+        required,
+        has: req.user.permissions,
         path: req.path,
         method: req.method,
       });
-
-      sendError(res, err.message, 403);
+      sendError(res, req.t("permissions.oneRequired", { permissions: required.join(", ") }), 403);
       return;
     }
 
@@ -133,89 +81,85 @@ export const authorizeAny = (permissions: string[]) =>
   };
 
 /**
- * Require ALL of the specified permissions
- * 
+ * Require ALL of the listed permissions (AND logic).
+ *
  * Usage:
- *   router.post("/admin/settings", authenticate, authorizeAll([
- *     "clinic:update",
- *     "system:manage_settings"
- *   ]), controller.updateSettings)
+ *   router.post("/admin", authenticate, authorizeAll(["clinic:update", "system:manage_settings"]), controller.admin)
  */
-export const authorizeAll = (permissions: string[]) =>
+export const authorizeAll = (required: string[]) =>
   (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       sendError(res, req.t("common.unauthorized"), 401);
       return;
     }
 
-    const hasAll = permissions.every((perm) =>
-      req.user!.permissions.includes(perm)
-    );
+    const missing = required.filter((p) => !req.user!.permissions.includes(p));
 
-    if (!hasAll) {
-      const missing = permissions.filter(
-        (perm) => !req.user!.permissions.includes(perm)
-      );
-
-      const err = new ForbiddenError(
-        req.t("permissions.missingPermissions", { permissions: missing.join(", ") })
-      );
-
+    if (missing.length > 0) {
       logger.warn({
-        msg: "Authorization failed - missing permissions",
-        userId: req.user.userId,
+        msg: "Authorization failed — missing required permissions",
+        staffUserId: req.user.userId,
         clinicId: req.user.clinicId,
-        userPermissions: req.user.permissions,
-        requiredPermissions: permissions,
-        missingPermissions: missing,
+        required,
+        missing,
         path: req.path,
         method: req.method,
       });
-
-      sendError(res, err.message, 403);
+      sendError(res, req.t("permissions.missingPermissions", { permissions: missing.join(", ") }), 403);
       return;
     }
 
     next();
   };
 
+// ─── Service-level helpers ────────────────────────────────────────────────────
+
+type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
+
 /**
- * Helper function for service-level permission checks
- * 
- * Use this inside services when you need to check permissions programmatically.
- * 
+ * Throws ForbiddenError if the user lacks the permission.
+ * Use inside services for programmatic permission checks.
+ *
  * Usage:
- *   requirePermission(req.user, "users:delete", req.t);
+ *   requirePermission(context.permissions, "users:delete", t);
  */
 export const requirePermission = (
-  user: JwtPayloadRBAC | undefined,
+  permissions: string[],
   permission: string,
-  t: (key: string, params?: Record<string, string | number>) => string
+  t: TranslateFn
 ): void => {
-  if (!user) {
-    throw new UnauthorizedError(t("common.unauthorized"));
-  }
-
-  if (!user.permissions.includes(permission)) {
+  if (!permissions.includes(permission)) {
     throw new ForbiddenError(t("permissions.required", { permission }));
   }
 };
 
 /**
- * Check if user has permission (returns boolean)
- * 
- * Use this for conditional logic in services.
- * 
+ * Returns true if the user has the permission.
+ * Use for conditional branching in services.
+ *
  * Usage:
- *   if (hasPermission(req.user, "appointments:view_all")) {
- *     // Show all appointments
- *   } else {
- *     // Show only own appointments
- *   }
+ *   if (hasPermission(context.permissions, "appointments:view_all")) { ... }
  */
 export const hasPermission = (
-  user: JwtPayloadRBAC | undefined,
+  permissions: string[],
   permission: string
-): boolean => {
-  return user?.permissions.includes(permission) ?? false;
+): boolean => permissions.includes(permission);
+
+/**
+ * Asserts that the authenticated user's clinicId matches the resource's clinicId.
+ * Call this in services before any clinic-owned resource operation.
+ *
+ * ✅ clinicId MUST come from JWT — never from request input
+ *
+ * Usage:
+ *   assertClinicAccess(req.user!.clinicId, patient.clinicId, t);
+ */
+export const assertClinicAccess = (
+  jwtClinicId: string | undefined,
+  resourceClinicId: string,
+  t: TranslateFn
+): void => {
+  if (!jwtClinicId || jwtClinicId !== resourceClinicId) {
+    throw new ForbiddenError(t("common.forbidden"));
+  }
 };

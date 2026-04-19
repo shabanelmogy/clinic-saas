@@ -3,26 +3,32 @@ import { verifyAccessToken, type JwtPayloadRBAC } from "../modules/rbac/jwt-rbac
 import { sendError } from "../utils/response.js";
 import { UnauthorizedError } from "../utils/errors.js";
 
-// Extend Express Request with authenticated user context
+// ─── Request augmentation ─────────────────────────────────────────────────────
+
 declare global {
   namespace Express {
     interface Request {
       user?: JwtPayloadRBAC;
       /**
-       * Convenience shortcut — only set for staff tokens.
-       * Patient requests will have this as undefined.
-       * Always prefer req.user.clinicId over this for explicit intent.
+       * Convenience shortcut for req.user.clinicId.
+       * Only set for clinic-scoped staff tokens.
+       * Always prefer req.user!.clinicId for explicit intent.
        */
       clinicId?: string;
     }
   }
 }
 
+// ─── authenticate ─────────────────────────────────────────────────────────────
+
 /**
- * Verifies the Bearer token and attaches `req.user`.
- * For staff tokens also sets `req.clinicId` as a convenience shortcut.
+ * Verifies the Bearer JWT and attaches `req.user`.
  *
- * Does NOT check permissions — use authorize() from rbac/authorize.middleware.ts.
+ * - Reads Authorization: Bearer <token>
+ * - Verifies signature and expiry
+ * - Rejects non-staff tokens (userType guard in verifyAccessToken)
+ * - Sets req.clinicId for clinic-scoped tokens
+ * - Does NOT check permissions — use authorize() for that
  */
 export const authenticate = (
   req: Request,
@@ -32,7 +38,7 @@ export const authenticate = (
   const authHeader = req.headers.authorization;
 
   if (!authHeader?.startsWith("Bearer ")) {
-    sendError(res, "Missing or malformed Authorization header", 401);
+    sendError(res, req.t("auth.invalidToken"), 401);
     return;
   }
 
@@ -42,8 +48,8 @@ export const authenticate = (
     const payload = verifyAccessToken(token);
     req.user = payload;
 
-    // Only set clinicId for staff — patients have no clinic scope
-    if (payload.userType === "staff" && payload.clinicId) {
+    // Set clinicId shortcut for clinic-scoped staff tokens
+    if (payload.clinicId) {
       req.clinicId = payload.clinicId;
     }
 
@@ -55,4 +61,27 @@ export const authenticate = (
       next(err);
     }
   }
+};
+
+// ─── requireClinic ────────────────────────────────────────────────────────────
+
+/**
+ * Enforces that the authenticated user has a clinic-scoped token.
+ * Use on routes that MUST have a clinicId (all clinic-owned resource routes).
+ *
+ * ✅ clinicId ONLY comes from JWT — never from request body or params
+ *
+ * Usage:
+ *   router.get("/patients", authenticate, requireClinic, authorize("patients:view"), controller.list)
+ */
+export const requireClinic = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (!req.user?.clinicId) {
+    sendError(res, req.t("auth.clinicRequired"), 403);
+    return;
+  }
+  next();
 };

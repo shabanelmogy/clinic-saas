@@ -1,5 +1,6 @@
 import { appointmentRepository } from "./appointment.repository.js";
 import { userRepository } from "../users/user.repository.js";
+import { clinicRepository } from "../clinics/clinic.repository.js";
 import type {
   CreateAppointmentInput,
   UpdateAppointmentInput,
@@ -129,6 +130,10 @@ export const appointmentService = {
       if (!input.clinicId) {
         throw new BadRequestError("clinicId is required for patient bookings");
       }
+
+      // Verify the target clinic exists, is active and published
+      const clinic = await clinicRepository.findById(input.clinicId);
+      if (!clinic) throw new NotFoundError(t("appointments.clinicNotFound"));
 
       // Verify patient exists (themselves)
       const patient = await userRepository.findById(context.userId);
@@ -266,7 +271,7 @@ export const appointmentService = {
       throw new BadRequestError(t("appointments.cannotDeleteConfirmed"));
     }
 
-    const deleted = await appointmentRepository.delete(id, context);
+    const deleted = await appointmentRepository.softDelete(id, context);
     if (!deleted) throw new NotFoundError(t("appointments.notFound"));
 
     logger.warn({

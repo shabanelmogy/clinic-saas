@@ -21,7 +21,8 @@
     "invalidRefreshToken": "Jeton de rafraîchissement invalide",
     "refreshTokenExpired": "Jeton de rafraîchissement expiré. Veuillez vous reconnecter",
     "refreshTokenReused": "Jeton de rafraîchissement déjà utilisé. Veuillez vous reconnecter",
-    "accountNotFound": "Compte introuvable ou désactivé"
+    "accountNotFound": "Compte introuvable ou désactivé",
+    "clinicRequired": "Un token lié à une clinique est requis pour cette action"
   },
   "users": {
     "retrieved": "Utilisateurs récupérés",
@@ -38,6 +39,19 @@
     "incorrectPassword": "Le mot de passe actuel est incorrect",
     "userInactive": "L'utilisateur est inactif"
   },
+  "staffUsers": {
+    "retrieved": "Utilisateurs du personnel récupérés",
+    "staffUserRetrieved": "Utilisateur du personnel récupéré",
+    "created": "Utilisateur du personnel créé avec succès",
+    "updated": "Utilisateur du personnel mis à jour avec succès",
+    "deleted": "Utilisateur du personnel supprimé avec succès",
+    "notFound": "Utilisateur du personnel non trouvé",
+    "emailExists": "Un utilisateur du personnel avec cet email existe déjà",
+    "emailInUse": "L'email est déjà utilisé",
+    "cannotDeleteSelf": "Vous ne pouvez pas supprimer votre propre compte",
+    "incorrectPassword": "Le mot de passe actuel est incorrect",
+    "passwordUpdated": "Mot de passe modifié avec succès. Veuillez vous reconnecter."
+  },
   "appointments": {
     "retrieved": "Rendez-vous récupérés",
     "appointmentRetrieved": "Rendez-vous récupéré",
@@ -45,6 +59,7 @@
     "updated": "Rendez-vous mis à jour avec succès",
     "deleted": "Rendez-vous supprimé avec succès",
     "notFound": "Rendez-vous non trouvé",
+    "clinicNotFound": "Clinique introuvable ou n'acceptant pas les réservations",
     "cannotUpdateStatus": "Impossible de mettre à jour un rendez-vous avec le statut \"{{status}}\"",
     "cannotDeleteConfirmed": "Impossible de supprimer un rendez-vous confirmé. Annulez-le d'abord",
     "userNotFound": "Utilisateur non trouvé",
@@ -71,7 +86,59 @@
       "invalidDatetime": "Doit être une chaîne de date et heure ISO 8601 valide",
       "mustBeFuture": "L'heure prévue doit être dans le futur",
       "durationMustBeInteger": "La durée doit être un nombre entier"
+    },
+    "clinics": {
+      "invalidUrl": "Doit être une URL valide"
+    },
+    "doctors": {
+      "invalidTime": "Doit être une heure valide au format HH:MM"
     }
+  },
+  "clinics": {
+    "retrieved": "Cliniques récupérées",
+    "clinicRetrieved": "Clinique récupérée",
+    "updated": "Clinique mise à jour avec succès",
+    "notFound": "Clinique non trouvée"
+  },
+  "patients": {
+    "retrieved": "Patients récupérés",
+    "patientRetrieved": "Patient récupéré",
+    "created": "Patient créé avec succès",
+    "updated": "Patient mis à jour avec succès",
+    "deleted": "Patient supprimé avec succès",
+    "notFound": "Patient non trouvé",
+    "emailExists": "Un patient avec cet email existe déjà dans cette clinique",
+    "nationalIdExists": "Un patient avec ce numéro national existe déjà dans cette clinique"
+  },
+  "doctors": {
+    "retrieved": "Médecins récupérés",
+    "doctorRetrieved": "Médecin récupéré",
+    "created": "Médecin créé avec succès",
+    "updated": "Médecin mis à jour avec succès",
+    "deleted": "Médecin supprimé avec succès",
+    "notFound": "Médecin non trouvé",
+    "schedulesRetrieved": "Plannings récupérés",
+    "scheduleUpdated": "Planning mis à jour avec succès",
+    "scheduleDeleted": "Planning supprimé avec succès",
+    "scheduleNotFound": "Planning non trouvé",
+    "invalidScheduleTime": "L'heure de début doit être avant l'heure de fin"
+  },
+  "patientProfiles": {
+    "retrieved": "Profil patient récupéré",
+    "updated": "Profil patient mis à jour avec succès",
+    "notFound": "Profil patient non trouvé"
+  },
+  "slotTimes": {
+    "retrieved": "Créneaux récupérés",
+    "generated": "Créneaux générés avec succès",
+    "booked": "Créneau réservé avec succès",
+    "released": "Créneau libéré avec succès",
+    "updated": "Créneau mis à jour avec succès",
+    "notFound": "Créneau non trouvé",
+    "notAvailable": "Le créneau n'est plus disponible",
+    "notBooked": "Le créneau n'est pas réservé",
+    "cannotModifyBooked": "Impossible de modifier un créneau réservé",
+    "invalidDateRange": "La date de fin doit être après la date de début"
   },
   "health": {
     "ok": "ok",

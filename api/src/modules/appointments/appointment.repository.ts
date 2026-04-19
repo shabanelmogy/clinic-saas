@@ -1,4 +1,4 @@
-import { eq, and, gte, lte, count, SQL } from "drizzle-orm";
+import { eq, and, gte, lte, count, isNull, SQL } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { appointments, type Appointment, type NewAppointment } from "./appointment.schema.js";
 import type { ListAppointmentsQuery } from "./appointment.validation.js";
@@ -6,9 +6,8 @@ import type { ListAppointmentsQuery } from "./appointment.validation.js";
 export const appointmentRepository = {
   /**
    * Find appointments for a PATIENT across ALL clinics.
-   *
-   * ✅ Filters by patientId ONLY — no clinicId filter.
-   * ✅ Patient sees their appointments regardless of which clinic they belong to.
+   * ✅ Filters by patientId ONLY — cross-clinic visibility.
+   * ✅ Excludes soft-deleted rows.
    */
   async findAllForPatient(
     patientId: string,
@@ -17,8 +16,10 @@ export const appointmentRepository = {
     const { page, limit, status, from, to } = query;
     const offset = (page - 1) * limit;
 
-    // ✅ CRITICAL: Only filter by patientId — cross-clinic visibility
-    const conditions: SQL[] = [eq(appointments.patientId, patientId)];
+    const conditions: SQL[] = [
+      eq(appointments.patientId, patientId),
+      isNull(appointments.deletedAt),
+    ];
     if (status) conditions.push(eq(appointments.status, status));
     if (from) conditions.push(gte(appointments.scheduledAt, new Date(from)));
     if (to) conditions.push(lte(appointments.scheduledAt, new Date(to)));
@@ -26,13 +27,7 @@ export const appointmentRepository = {
     const where = and(...conditions);
 
     const [data, [{ value: total }]] = await Promise.all([
-      db
-        .select()
-        .from(appointments)
-        .where(where)
-        .limit(limit)
-        .offset(offset)
-        .orderBy(appointments.scheduledAt),
+      db.select().from(appointments).where(where).limit(limit).offset(offset).orderBy(appointments.scheduledAt),
       db.select({ value: count() }).from(appointments).where(where),
     ]);
 
@@ -40,10 +35,9 @@ export const appointmentRepository = {
   },
 
   /**
-   * Find appointments for a CLINIC — strictly scoped to that clinic.
-   *
+   * Find appointments for a CLINIC — strictly scoped.
    * ✅ ALWAYS filters by clinicId — tenant isolation.
-   * ✅ Staff can optionally filter by patientId within their clinic.
+   * ✅ Excludes soft-deleted rows.
    */
   async findAllForClinic(
     clinicId: string,
@@ -52,8 +46,10 @@ export const appointmentRepository = {
     const { page, limit, patientId, status, from, to } = query;
     const offset = (page - 1) * limit;
 
-    // ✅ CRITICAL: Always start with clinicId filter
-    const conditions: SQL[] = [eq(appointments.clinicId, clinicId)];
+    const conditions: SQL[] = [
+      eq(appointments.clinicId, clinicId),
+      isNull(appointments.deletedAt),
+    ];
     if (patientId) conditions.push(eq(appointments.patientId, patientId));
     if (status) conditions.push(eq(appointments.status, status));
     if (from) conditions.push(gte(appointments.scheduledAt, new Date(from)));
@@ -62,13 +58,7 @@ export const appointmentRepository = {
     const where = and(...conditions);
 
     const [data, [{ value: total }]] = await Promise.all([
-      db
-        .select()
-        .from(appointments)
-        .where(where)
-        .limit(limit)
-        .offset(offset)
-        .orderBy(appointments.scheduledAt),
+      db.select().from(appointments).where(where).limit(limit).offset(offset).orderBy(appointments.scheduledAt),
       db.select({ value: count() }).from(appointments).where(where),
     ]);
 
@@ -77,40 +67,26 @@ export const appointmentRepository = {
 
   /**
    * Find appointment by ID — context-aware.
-   *
-   * Patient: checks ownership via patientId (no clinic filter).
-   * Staff:   checks ownership via clinicId (tenant isolation).
+   * ✅ Excludes soft-deleted rows.
    */
   async findById(
     id: string,
     context: { userType: "patient" | "staff"; userId: string; clinicId?: string }
   ): Promise<Appointment | undefined> {
-    const where =
+    const baseConditions =
       context.userType === "patient"
-        ? // ✅ Patient: own appointment, any clinic
-          and(eq(appointments.id, id), eq(appointments.patientId, context.userId))
-        : // ✅ Staff: appointment within their clinic
-          and(eq(appointments.id, id), eq(appointments.clinicId, context.clinicId!));
+        ? and(eq(appointments.id, id), eq(appointments.patientId, context.userId), isNull(appointments.deletedAt))
+        : and(eq(appointments.id, id), eq(appointments.clinicId, context.clinicId!), isNull(appointments.deletedAt));
 
-    const [appointment] = await db.select().from(appointments).where(where);
+    const [appointment] = await db.select().from(appointments).where(baseConditions);
     return appointment;
   },
 
-  /**
-   * Create a new appointment.
-   * clinicId and patientId must both be set by the caller.
-   */
   async create(data: NewAppointment): Promise<Appointment> {
-    const [appointment] = await db
-      .insert(appointments)
-      .values(data)
-      .returning();
+    const [appointment] = await db.insert(appointments).values(data).returning();
     return appointment;
   },
 
-  /**
-   * Update an appointment — context-aware.
-   */
   async update(
     id: string,
     data: Partial<NewAppointment>,
@@ -118,8 +94,8 @@ export const appointmentRepository = {
   ): Promise<Appointment | undefined> {
     const where =
       context.userType === "patient"
-        ? and(eq(appointments.id, id), eq(appointments.patientId, context.userId))
-        : and(eq(appointments.id, id), eq(appointments.clinicId, context.clinicId!));
+        ? and(eq(appointments.id, id), eq(appointments.patientId, context.userId), isNull(appointments.deletedAt))
+        : and(eq(appointments.id, id), eq(appointments.clinicId, context.clinicId!), isNull(appointments.deletedAt));
 
     const [appointment] = await db
       .update(appointments)
@@ -130,30 +106,34 @@ export const appointmentRepository = {
   },
 
   /**
-   * Delete an appointment — context-aware.
+   * Soft-delete an appointment — sets deletedAt, never removes the row.
    */
-  async delete(
+  async softDelete(
     id: string,
     context: { userType: "patient" | "staff"; userId: string; clinicId?: string }
   ): Promise<boolean> {
     const where =
       context.userType === "patient"
-        ? and(eq(appointments.id, id), eq(appointments.patientId, context.userId))
-        : and(eq(appointments.id, id), eq(appointments.clinicId, context.clinicId!));
+        ? and(eq(appointments.id, id), eq(appointments.patientId, context.userId), isNull(appointments.deletedAt))
+        : and(eq(appointments.id, id), eq(appointments.clinicId, context.clinicId!), isNull(appointments.deletedAt));
 
-    const result = await db.delete(appointments).where(where).returning();
+    const result = await db
+      .update(appointments)
+      .set({ deletedAt: new Date(), updatedAt: new Date() })
+      .where(where)
+      .returning();
     return result.length > 0;
   },
 
   /**
-   * Count appointments for a patient within a specific clinic.
-   * Used for dependency checks before deleting a patient.
+   * Count active (non-deleted) appointments for a patient.
+   * Used for dependency checks.
    */
   async countByPatientId(patientId: string): Promise<number> {
     const [{ value }] = await db
       .select({ value: count() })
       .from(appointments)
-      .where(eq(appointments.patientId, patientId));
+      .where(and(eq(appointments.patientId, patientId), isNull(appointments.deletedAt)));
     return Number(value);
   },
 };

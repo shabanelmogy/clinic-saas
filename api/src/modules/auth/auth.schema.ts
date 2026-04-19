@@ -5,25 +5,22 @@ import {
   timestamp,
   index,
 } from "drizzle-orm/pg-core";
-import { users } from "../users/user.schema.js";
+import { staffUsers } from "../staff-users/staff-user.schema.js";
 
-// ─── Table ────────────────────────────────────────────────────────────────────
-
-/**
- * Refresh tokens table.
- *
- * ✅ userId references GLOBAL users — no clinic_id needed.
- * Token rotation with family tracking for reuse detection.
- * Tokens are hashed (SHA-256) before storage.
- */
 export const refreshTokens = pgTable(
   "refresh_tokens",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id")
+    /**
+     * ✅ FIX #9: onDelete changed from "restrict" to "cascade".
+     * "restrict" blocks hard-deletion of a staff user who has tokens.
+     * "cascade" ensures tokens are cleaned up automatically when a staff user
+     * is hard-deleted. Soft-delete (deletedAt) is the normal path and doesn't
+     * trigger this FK at all.
+     */
+    staffUserId: uuid("staff_user_id")
       .notNull()
-      .references(() => users.id, { onDelete: "restrict" }),
-    // SHA-256 hash of the raw token — never store the raw value
+      .references(() => staffUsers.id, { onDelete: "cascade" }),
     tokenHash: varchar("token_hash", { length: 64 }).notNull().unique(),
     familyId: uuid("family_id").notNull(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
@@ -34,13 +31,12 @@ export const refreshTokens = pgTable(
   },
   (t) => ({
     tokenHashIdx: index("refresh_tokens_token_hash_idx").on(t.tokenHash),
-    userIdIdx: index("refresh_tokens_user_id_idx").on(t.userId),
+    staffUserIdIdx: index("refresh_tokens_staff_user_id_idx").on(t.staffUserId),
     familyIdIdx: index("refresh_tokens_family_id_idx").on(t.familyId),
+    // Token cleanup job: find all expired tokens efficiently
     expiresAtIdx: index("refresh_tokens_expires_at_idx").on(t.expiresAt),
   })
 );
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 export type RefreshToken = typeof refreshTokens.$inferSelect;
 export type NewRefreshToken = typeof refreshTokens.$inferInsert;

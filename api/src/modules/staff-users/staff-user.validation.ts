@@ -1,23 +1,9 @@
 import { z } from "zod";
 import { paginationSchema } from "../../utils/shared-validators.js";
 
-/**
- * User module — all Zod schemas live here.
- * Do NOT move these to a global validations folder.
- */
-
-/**
- * Translation function type
- */
 type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
 
-/**
- * Create localized user validation schemas
- * 
- * @param t - Translation function from request
- * @returns Localized Zod schemas
- */
-export const createUserSchemas = (t: TranslateFn) => ({
+export const createStaffUserSchemas = (t: TranslateFn) => ({
   create: z.object({
     name: z
       .string()
@@ -73,6 +59,6 @@ export const createUserSchemas = (t: TranslateFn) => ({
   }),
 });
 
-export type CreateUserInput = z.infer<ReturnType<typeof createUserSchemas>["create"]>;
-export type UpdateUserInput = z.infer<ReturnType<typeof createUserSchemas>["update"]>;
-export type ListUsersQuery = z.infer<ReturnType<typeof createUserSchemas>["listQuery"]>;
+export type CreateStaffUserInput = z.infer<ReturnType<typeof createStaffUserSchemas>["create"]>;
+export type UpdateStaffUserInput = z.infer<ReturnType<typeof createStaffUserSchemas>["update"]>;
+export type ListStaffUsersQuery = z.infer<ReturnType<typeof createStaffUserSchemas>["listQuery"]>;

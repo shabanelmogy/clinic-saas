@@ -21,7 +21,8 @@
     "invalidRefreshToken": "Invalid refresh token",
     "refreshTokenExpired": "Refresh token expired. Please log in again",
     "refreshTokenReused": "Refresh token already used. Please log in again",
-    "accountNotFound": "Account not found or deactivated"
+    "accountNotFound": "Account not found or deactivated",
+    "clinicRequired": "A clinic-scoped token is required for this action"
   },
   "users": {
     "retrieved": "Users retrieved",
@@ -38,18 +39,65 @@
     "incorrectPassword": "Current password is incorrect",
     "userInactive": "User is inactive"
   },
-  "appointments": {
+  "staffUsers": {
+    "retrieved": "Staff users retrieved",
+    "staffUserRetrieved": "Staff user retrieved",
+    "created": "Staff user created successfully",
+    "updated": "Staff user updated successfully",
+    "deleted": "Staff user deleted successfully",
+    "notFound": "Staff user not found",
+    "emailExists": "A staff user with that email already exists",
+    "emailInUse": "Email is already in use",
+    "cannotDeleteSelf": "You cannot delete your own account",
+    "incorrectPassword": "Current password is incorrect",
+    "passwordUpdated": "Password changed successfully. Please log in again."
+  },
     "retrieved": "Appointments retrieved",
     "appointmentRetrieved": "Appointment retrieved",
     "created": "Appointment created successfully",
     "updated": "Appointment updated successfully",
     "deleted": "Appointment deleted successfully",
     "notFound": "Appointment not found",
+    "clinicNotFound": "Clinic not found or not accepting bookings",
     "cannotUpdateStatus": "Cannot update an appointment with status \"{{status}}\"",
     "cannotDeleteConfirmed": "Cannot delete a confirmed appointment. Cancel it first",
     "userNotFound": "User not found",
     "userInactive": "Cannot create appointment for an inactive user",
     "noPermission": "You do not have permission to view this appointment"
+  },
+  "clinics": {
+    "retrieved": "Clinics retrieved",
+    "clinicRetrieved": "Clinic retrieved",
+    "updated": "Clinic updated successfully",
+    "notFound": "Clinic not found"
+  },
+  "patients": {
+    "retrieved": "Patients retrieved",
+    "patientRetrieved": "Patient retrieved",
+    "created": "Patient created successfully",
+    "updated": "Patient updated successfully",
+    "deleted": "Patient deleted successfully",
+    "notFound": "Patient not found",
+    "emailExists": "A patient with that email already exists in this clinic",
+    "nationalIdExists": "A patient with that national ID already exists in this clinic"
+  },
+  "doctors": {
+    "retrieved": "Doctors retrieved",
+    "doctorRetrieved": "Doctor retrieved",
+    "created": "Doctor created successfully",
+    "updated": "Doctor updated successfully",
+    "deleted": "Doctor deleted successfully",
+    "notFound": "Doctor not found",
+    "schedulesRetrieved": "Schedules retrieved",
+    "scheduleUpdated": "Schedule updated successfully",
+    "scheduleDeleted": "Schedule deleted successfully",
+    "scheduleNotFound": "Schedule not found",
+    "invalidScheduleTime": "Start time must be before end time"
+  },
+  "patientProfiles": {
+    "retrieved": "Patient profile retrieved",
+    "updated": "Patient profile updated successfully",
+    "notFound": "Patient profile not found"
   },
   "permissions": {
     "required": "Permission '{{permission}}' is required",
@@ -71,7 +119,25 @@
       "invalidDatetime": "Must be a valid ISO 8601 datetime string",
       "mustBeFuture": "Scheduled time must be in the future",
       "durationMustBeInteger": "Duration must be a whole number"
+    },
+    "clinics": {
+      "invalidUrl": "Must be a valid URL"
+    },
+    "doctors": {
+      "invalidTime": "Must be a valid time in HH:MM format"
     }
+  },
+  "slotTimes": {
+    "retrieved": "Slots retrieved",
+    "generated": "Slots generated successfully",
+    "booked": "Slot booked successfully",
+    "released": "Slot released successfully",
+    "updated": "Slot updated successfully",
+    "notFound": "Slot not found",
+    "notAvailable": "Slot is no longer available",
+    "notBooked": "Slot is not booked",
+    "cannotModifyBooked": "Cannot modify a booked slot",
+    "invalidDateRange": "End date must be after start date"
   },
   "health": {
     "ok": "ok",

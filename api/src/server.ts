@@ -18,7 +18,13 @@ import { checkDbConnection } from "./utils/db-health.js";
 
 import authRoutes from "./modules/auth/auth.routes.js";
 import userRoutes from "./modules/users/user.routes.js";
+import staffUserRoutes from "./modules/staff-users/staff-user.routes.js";
 import appointmentRoutes from "./modules/appointments/appointment.routes.js";
+import clinicRoutes from "./modules/clinics/clinic.routes.js";
+import doctorRoutes, { publicDoctorRouter } from "./modules/doctors/doctor.routes.js";
+import doctorScheduleRoutes, { publicScheduleRouter } from "./modules/doctor-schedules/doctor-schedule.routes.js";
+import patientRoutes from "./modules/patients/patient.routes.js";
+import slotTimeRoutes from "./modules/slot-times/slot-time.routes.js";
 
 const app = express();
 
@@ -121,7 +127,19 @@ app.get("/api/v1/health", healthHandler);
 // ─── Routes ───────────────────────────────────────────────────────────────────
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/staff-users", staffUserRoutes);
 app.use("/api/v1/appointments", appointmentRoutes);
+app.use("/api/v1/clinics", clinicRoutes);
+// Public marketplace: /api/v1/clinics/:clinicId/doctors
+app.use("/api/v1/clinics/:clinicId/doctors", publicDoctorRouter);
+// Public: /api/v1/clinics/:clinicId/doctors/:doctorId/schedules
+app.use("/api/v1/clinics/:clinicId/doctors/:doctorId/schedules", publicScheduleRouter);
+// Staff: /api/v1/doctors (scoped to JWT clinicId)
+app.use("/api/v1/doctors", doctorRoutes);
+// Staff: /api/v1/doctors/:doctorId/schedules
+app.use("/api/v1/doctors/:doctorId/schedules", doctorScheduleRoutes);
+app.use("/api/v1/patients", patientRoutes);
+app.use("/api/v1/slot-times", slotTimeRoutes);
 
 // ─── Error Handling ───────────────────────────────────────────────────────────
 app.use(notFoundHandler);

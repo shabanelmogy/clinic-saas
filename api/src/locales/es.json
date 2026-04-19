@@ -21,7 +21,8 @@
     "invalidRefreshToken": "Token de actualización inválido",
     "refreshTokenExpired": "Token de actualización expirado. Por favor, inicie sesión nuevamente",
     "refreshTokenReused": "Token de actualización ya utilizado. Por favor, inicie sesión nuevamente",
-    "accountNotFound": "Cuenta no encontrada o desactivada"
+    "accountNotFound": "Cuenta no encontrada o desactivada",
+    "clinicRequired": "Se requiere un token vinculado a una clínica para esta acción"
   },
   "users": {
     "retrieved": "Usuarios recuperados",
@@ -38,6 +39,19 @@
     "incorrectPassword": "La contraseña actual es incorrecta",
     "userInactive": "El usuario está inactivo"
   },
+  "staffUsers": {
+    "retrieved": "Usuarios del personal recuperados",
+    "staffUserRetrieved": "Usuario del personal recuperado",
+    "created": "Usuario del personal creado exitosamente",
+    "updated": "Usuario del personal actualizado exitosamente",
+    "deleted": "Usuario del personal eliminado exitosamente",
+    "notFound": "Usuario del personal no encontrado",
+    "emailExists": "Ya existe un usuario del personal con ese correo",
+    "emailInUse": "El correo electrónico ya está en uso",
+    "cannotDeleteSelf": "No puedes eliminar tu propia cuenta",
+    "incorrectPassword": "La contraseña actual es incorrecta",
+    "passwordUpdated": "Contraseña cambiada exitosamente. Por favor, inicie sesión nuevamente."
+  },
   "appointments": {
     "retrieved": "Citas recuperadas",
     "appointmentRetrieved": "Cita recuperada",
@@ -45,6 +59,7 @@
     "updated": "Cita actualizada exitosamente",
     "deleted": "Cita eliminada exitosamente",
     "notFound": "Cita no encontrada",
+    "clinicNotFound": "Clínica no encontrada o no acepta reservas",
     "cannotUpdateStatus": "No se puede actualizar una cita con estado \"{{status}}\"",
     "cannotDeleteConfirmed": "No se puede eliminar una cita confirmada. Cancélela primero",
     "userNotFound": "Usuario no encontrado",
@@ -71,7 +86,59 @@
       "invalidDatetime": "Debe ser una cadena de fecha y hora ISO 8601 válida",
       "mustBeFuture": "La hora programada debe estar en el futuro",
       "durationMustBeInteger": "La duración debe ser un número entero"
+    },
+    "clinics": {
+      "invalidUrl": "Debe ser una URL válida"
+    },
+    "doctors": {
+      "invalidTime": "Debe ser una hora válida en formato HH:MM"
     }
+  },
+  "clinics": {
+    "retrieved": "Clínicas recuperadas",
+    "clinicRetrieved": "Clínica recuperada",
+    "updated": "Clínica actualizada exitosamente",
+    "notFound": "Clínica no encontrada"
+  },
+  "patients": {
+    "retrieved": "Pacientes recuperados",
+    "patientRetrieved": "Paciente recuperado",
+    "created": "Paciente creado exitosamente",
+    "updated": "Paciente actualizado exitosamente",
+    "deleted": "Paciente eliminado exitosamente",
+    "notFound": "Paciente no encontrado",
+    "emailExists": "Ya existe un paciente con ese correo en esta clínica",
+    "nationalIdExists": "Ya existe un paciente con ese número nacional en esta clínica"
+  },
+  "doctors": {
+    "retrieved": "Médicos recuperados",
+    "doctorRetrieved": "Médico recuperado",
+    "created": "Médico creado exitosamente",
+    "updated": "Médico actualizado exitosamente",
+    "deleted": "Médico eliminado exitosamente",
+    "notFound": "Médico no encontrado",
+    "schedulesRetrieved": "Horarios recuperados",
+    "scheduleUpdated": "Horario actualizado exitosamente",
+    "scheduleDeleted": "Horario eliminado exitosamente",
+    "scheduleNotFound": "Horario no encontrado",
+    "invalidScheduleTime": "La hora de inicio debe ser anterior a la hora de fin"
+  },
+  "patientProfiles": {
+    "retrieved": "Perfil del paciente recuperado",
+    "updated": "Perfil del paciente actualizado exitosamente",
+    "notFound": "Perfil del paciente no encontrado"
+  },
+  "slotTimes": {
+    "retrieved": "Horarios recuperados",
+    "generated": "Horarios generados exitosamente",
+    "booked": "Horario reservado exitosamente",
+    "released": "Horario liberado exitosamente",
+    "updated": "Horario actualizado exitosamente",
+    "notFound": "Horario no encontrado",
+    "notAvailable": "El horario ya no está disponible",
+    "notBooked": "El horario no está reservado",
+    "cannotModifyBooked": "No se puede modificar un horario reservado",
+    "invalidDateRange": "La fecha de fin debe ser posterior a la fecha de inicio"
   },
   "health": {
     "ok": "ok",
