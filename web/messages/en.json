@@ -14,14 +14,18 @@
     "error": "Something went wrong"
   },
   "auth": {
-    "login": "Login",
+    "login": "Sign in to your account",
     "logout": "Logout",
-    "email": "Email",
+    "email": "Email address",
     "password": "Password",
-    "clinicId": "Clinic ID (optional)",
+    "clinicId": "Clinic ID",
+    "clinicIdHint": "Leave empty to sign in as Super Admin",
     "loginButton": "Sign in",
     "loggingIn": "Signing in...",
-    "invalidCredentials": "Invalid email or password"
+    "invalidCredentials": "Invalid email or password",
+    "tagline": "Healthcare management made simple",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "nav": {
     "dashboard": "Dashboard",
