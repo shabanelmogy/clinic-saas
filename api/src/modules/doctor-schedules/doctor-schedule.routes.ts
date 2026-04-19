@@ -8,7 +8,8 @@ import { z } from "zod";
 
 const doctorIdParamSchema = z.object({ doctorId: z.string().uuid() });
 
-// ─── Public router (mounted under /clinics/:clinicId/doctors/:doctorId/schedules)
+// ─── Public router (mounted under /clinics) ───────────────────────────────────
+// ✅ Full param path defined here — not on app.use()
 export const publicScheduleRouter = Router({ mergeParams: true });
 
 /**
@@ -30,9 +31,10 @@ export const publicScheduleRouter = Router({ mergeParams: true });
  *       200:
  *         description: List of active schedule rules
  */
-publicScheduleRouter.get("/", doctorScheduleController.listPublic);
+publicScheduleRouter.get("/:clinicId/doctors/:doctorId/schedules", doctorScheduleController.listPublic);
 
-// ─── Staff router (mounted under /doctors/:doctorId/schedules)
+// ─── Staff router (mounted under /doctors) ────────────────────────────────────
+// ✅ Full param path defined here — not on app.use()
 const router = Router({ mergeParams: true });
 
 /**
@@ -45,7 +47,7 @@ const router = Router({ mergeParams: true });
  *       - bearerAuth: []
  */
 router.get(
-  "/",
+  "/:doctorId/schedules",
   authenticate,
   authorize("doctors:view"),
   validate({ params: doctorIdParamSchema }),
@@ -62,7 +64,7 @@ router.get(
  *       - bearerAuth: []
  */
 router.put(
-  "/",
+  "/:doctorId/schedules",
   authenticate,
   authorize("doctors:update"),
   validate({
@@ -82,7 +84,7 @@ router.put(
  *       - bearerAuth: []
  */
 router.delete(
-  "/:day",
+  "/:doctorId/schedules/:day",
   authenticate,
   authorize("doctors:update"),
   validate({ params: dayOfWeekParamSchema }),

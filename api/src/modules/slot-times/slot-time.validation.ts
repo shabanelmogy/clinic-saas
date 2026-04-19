@@ -5,7 +5,9 @@ import type { TranslateFn } from "../../utils/i18n.js";
 
 export const createSlotTimeSchemas = (t: TranslateFn) => ({
   // Query available slots — public and staff
+  // clinicId required for public access (staff gets it from JWT)
   listQuery: paginationSchema.extend({
+    clinicId: z.string().uuid(t("validation.invalidUuid")).optional(),
     doctorId: z.string().uuid(t("validation.invalidUuid")).optional(),
     status: z.enum(slotStatusEnum.enumValues).optional(),
     from: z

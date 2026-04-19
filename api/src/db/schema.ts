@@ -20,3 +20,9 @@ export * from "../modules/doctor-schedules/doctor-schedule.schema.js";
 // ─── Hybrid ───────────────────────────────────────────────────────────────────
 export * from "../modules/appointments/appointment.schema.js";
 export * from "../modules/slot-times/slot-time.schema.js";
+
+// ─── Patient workflow ─────────────────────────────────────────────────────────
+export * from "../modules/patient-requests/patient-request.schema.js";
+
+// ─── Doctor workflow ──────────────────────────────────────────────────────────
+export * from "../modules/doctor-requests/doctor-request.schema.js";

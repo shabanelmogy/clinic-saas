@@ -237,9 +237,11 @@ export const DEFAULT_ROLES = {
     permissions: [
       "users:view", "users:create", "users:update", "users:delete", "users:manage_roles",
       "roles:view", "roles:create", "roles:update", "roles:delete",
-      "appointments:view_all", "appointments:create", "appointments:update", "appointments:delete",
+      "appointments:view_all", "appointments:view_own", "appointments:create", "appointments:update", "appointments:delete",
       "clinic:view", "clinic:update", "clinic:manage_billing",
       "doctors:view", "doctors:create", "doctors:update", "doctors:delete",
+      "patients:view", "patients:create", "patients:update", "patients:delete",
+      "slots:generate", "slots:book", "slots:manage",
       "reports:view", "reports:export",
       "system:view_logs", "system:manage_settings",
     ],

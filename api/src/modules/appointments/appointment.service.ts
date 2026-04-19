@@ -1,203 +1,97 @@
 import { appointmentRepository } from "./appointment.repository.js";
-import { patientRepository } from "../patients/patient.repository.js";
-import { clinicRepository } from "../clinics/clinic.repository.js";
+import { bookingService } from "./booking.service.js";
 import type {
   CreateAppointmentInput,
   UpdateAppointmentInput,
   ListAppointmentsQuery,
 } from "./appointment.validation.js";
-import { NotFoundError, BadRequestError } from "../../utils/errors.js";
+import { NotFoundError, BadRequestError, ForbiddenError } from "../../utils/errors.js";
 import { logger } from "../../utils/logger.js";
 import type { TranslateFn } from "../../utils/i18n.js";
 import { requirePermission } from "../rbac/authorize.middleware.js";
 
+type Context = {
+  userType: "patient" | "staff";
+  userId: string;
+  clinicId?: string;
+  permissions: string[];
+};
+
 export const appointmentService = {
   /**
    * List appointments — context-aware.
-   * Patient: shows all their appointments across ALL clinics.
-   * Staff: shows only appointments for their clinic.
+   * Patient: all their appointments across ALL clinics (cross-clinic visibility).
+   * Staff: only appointments for their clinic (tenant-scoped).
    */
   async listAppointments(
     query: ListAppointmentsQuery,
-    context: {
-      userType: "patient" | "staff";
-      userId: string;
-      clinicId?: string;
-      permissions: string[];
-    },
+    context: Context,
     t: TranslateFn
   ) {
     if (context.userType === "patient") {
-      // ✅ Patient: cross-clinic visibility
       const { data, total } = await appointmentRepository.findAllForPatient(
         context.userId,
         query
       );
-
-      logger.info({
-        msg: "Patient appointments listed",
-        patientId: context.userId,
-        count: data.length,
-        total,
-      });
-
-      return { data, total, page: query.page, limit: query.limit };
-    } else {
-      // ✅ Staff: clinic-scoped
-      const canViewAll = context.permissions.includes("appointments:view_all");
-      const canViewOwn = context.permissions.includes("appointments:view_own");
-
-      if (!canViewAll && !canViewOwn) {
-        throw new ForbiddenError(
-          t("permissions.oneRequired", {
-            permissions: "appointments:view_all, appointments:view_own",
-          })
-        );
-      }
-
-      const { data, total } = await appointmentRepository.findAllForClinic(
-        context.clinicId!,
-        query
-      );
-
-      logger.info({
-        msg: "Clinic appointments listed",
-        clinicId: context.clinicId,
-        count: data.length,
-        total,
-      });
-
+      logger.info({ msg: "Patient appointments listed", patientId: context.userId, count: data.length });
       return { data, total, page: query.page, limit: query.limit };
     }
+
+    // Staff
+    const canViewAll = context.permissions.includes("appointments:view_all");
+    const canViewOwn = context.permissions.includes("appointments:view_own");
+    if (!canViewAll && !canViewOwn) {
+      throw new ForbiddenError(
+        t("permissions.oneRequired", { permissions: "appointments:view_all, appointments:view_own" })
+      );
+    }
+
+    const { data, total } = await appointmentRepository.findAllForClinic(
+      context.clinicId!,
+      query
+    );
+    logger.info({ msg: "Clinic appointments listed", clinicId: context.clinicId, count: data.length });
+    return { data, total, page: query.page, limit: query.limit };
   },
 
   /**
    * Get appointment by ID — context-aware.
    */
-  async getAppointmentById(
-    id: string,
-    context: {
-      userType: "patient" | "staff";
-      userId: string;
-      clinicId?: string;
-      permissions: string[];
-    },
-    t: TranslateFn
-  ) {
-    const appointment = await appointmentRepository.findById(id, context);
-    if (!appointment) throw new NotFoundError(t("appointments.notFound"));
-
-    // Additional permission check for staff
+  async getAppointmentById(id: string, context: Context, t: TranslateFn) {
     if (context.userType === "staff") {
-      const canViewAll = context.permissions.includes("appointments:view_all");
-      const canViewOwn = context.permissions.includes("appointments:view_own");
-
-      if (!canViewAll && !canViewOwn) {
-        throw new ForbiddenError(t("appointments.noPermission"));
-      }
+      const canView = context.permissions.includes("appointments:view_all") ||
+                      context.permissions.includes("appointments:view_own");
+      if (!canView) throw new ForbiddenError(t("appointments.noPermission"));
     }
 
+    const appointment = await appointmentRepository.findById(id, context);
+    if (!appointment) throw new NotFoundError(t("appointments.notFound"));
     return appointment;
   },
 
   /**
-   * Create appointment — context-aware.
-   * Patient: books with ANY clinic (must provide clinicId).
-   * Staff: creates for their clinic (clinicId from JWT, must provide patientId).
+   * Create / book appointment — delegates to bookingService.
+   *
+   * If input.slotId is provided → transactional slot-based booking (SELECT FOR UPDATE).
+   * If no slotId → walk-in / manual booking (no slot lock needed).
    */
   async createAppointment(
     input: CreateAppointmentInput,
-    context: {
-      userType: "patient" | "staff";
-      userId: string;
-      clinicId?: string;
-      permissions: string[];
-    },
+    context: Context,
     t: TranslateFn
   ) {
-    if (context.userType === "patient") {
-      // ✅ Patient booking — must provide clinicId
-      if (!input.clinicId) {
-        throw new BadRequestError("clinicId is required for patient bookings");
-      }
-
-      // Verify the target clinic exists, is active and published
-      const clinic = await clinicRepository.findById(input.clinicId);
-      if (!clinic) throw new NotFoundError(t("appointments.clinicNotFound"));
-
-      // Verify patient exists (themselves)
-      const patient = await patientRepository.findById(context.userId, context.userId);
-      if (!patient || !patient.isActive) {
-        throw new BadRequestError(t("appointments.userInactive"));
-      }
-
-      const appointment = await appointmentRepository.create({
-        patientId: context.userId, // ✅ Authenticated patient
-        clinicId: input.clinicId, // ✅ Patient chooses clinic
-        title: input.title,
-        description: input.description,
-        scheduledAt: new Date(input.scheduledAt),
-        durationMinutes: input.durationMinutes,
-        notes: input.notes,
-      });
-
-      logger.info({
-        msg: "Appointment created by patient",
-        appointmentId: appointment.id,
-        patientId: context.userId,
-        clinicId: input.clinicId,
-      });
-
-      return appointment;
-    } else {
-      // ✅ Staff creating — must provide patientId
-      requirePermission(context.permissions, "appointments:create", t);
-
-      if (!input.patientId) {
-        throw new BadRequestError("patientId is required for staff bookings");
-      }
-
-      // Verify patient exists and belongs to this clinic
-      const patient = await patientRepository.findById(input.patientId, context.clinicId!);
-      if (!patient) throw new NotFoundError(t("appointments.userNotFound"));
-      if (!patient.isActive) {
-        throw new BadRequestError(t("appointments.userInactive"));
-      }
-
-      const appointment = await appointmentRepository.create({
-        patientId: input.patientId, // ✅ Staff specifies patient
-        clinicId: context.clinicId!, // ✅ Staff's clinic
-        title: input.title,
-        description: input.description,
-        scheduledAt: new Date(input.scheduledAt),
-        durationMinutes: input.durationMinutes,
-        notes: input.notes,
-      });
-
-      logger.info({
-        msg: "Appointment created by staff",
-        appointmentId: appointment.id,
-        createdBy: context.userId,
-        clinicId: context.clinicId,
-        patientId: input.patientId,
-      });
-
-      return appointment;
-    }
+    const { appointment } = await bookingService.bookAppointment(input, context, t);
+    return appointment;
   },
 
   /**
-   * Update appointment — context-aware.
+   * Update appointment fields (title, description, notes, scheduledAt, durationMinutes).
+   * Status transitions are handled separately by updateStatus.
    */
   async updateAppointment(
     id: string,
     input: UpdateAppointmentInput,
-    context: {
-      userType: "patient" | "staff";
-      userId: string;
-      clinicId?: string;
-      permissions: string[];
-    },
+    context: Context,
     t: TranslateFn
   ) {
     if (context.userType === "staff") {
@@ -207,30 +101,39 @@ export const appointmentService = {
     const existing = await appointmentRepository.findById(id, context);
     if (!existing) throw new NotFoundError(t("appointments.notFound"));
 
-    if (existing.status === "cancelled" || existing.status === "completed") {
+    const terminalStatuses = ["cancelled", "completed", "no_show"];
+    if (terminalStatuses.includes(existing.status)) {
       throw new BadRequestError(
         t("appointments.cannotUpdateStatus", { status: existing.status })
       );
     }
 
-    const updateData: Partial<typeof existing> = {};
+    // Status transitions go through bookingService (with history + optimistic lock)
+    if (input.status !== undefined && input.status !== existing.status) {
+      return bookingService.updateAppointmentStatus(
+        id,
+        input.status,
+        undefined,
+        context,
+        t
+      );
+    }
+
+    // Field-only update — no status change, no history entry needed
+    const updateData: Record<string, unknown> = {};
     if (input.title !== undefined) updateData.title = input.title;
     if (input.description !== undefined) updateData.description = input.description;
-    if (input.scheduledAt !== undefined)
-      updateData.scheduledAt = new Date(input.scheduledAt);
-    if (input.durationMinutes !== undefined)
-      updateData.durationMinutes = input.durationMinutes;
-    if (input.status !== undefined) updateData.status = input.status;
+    if (input.scheduledAt !== undefined) updateData.scheduledAt = new Date(input.scheduledAt);
+    if (input.durationMinutes !== undefined) updateData.durationMinutes = input.durationMinutes;
     if (input.notes !== undefined) updateData.notes = input.notes;
 
     const updated = await appointmentRepository.update(id, updateData, context);
     if (!updated) throw new NotFoundError(t("appointments.notFound"));
 
     logger.info({
-      msg: "Appointment updated",
+      msg: "Appointment fields updated",
       appointmentId: id,
       updatedBy: context.userId,
-      userType: context.userType,
       fields: Object.keys(updateData),
     });
 
@@ -238,18 +141,21 @@ export const appointmentService = {
   },
 
   /**
-   * Delete appointment — context-aware.
+   * Cancel appointment — delegates to bookingService (transactional slot release).
    */
-  async deleteAppointment(
+  async cancelAppointment(
     id: string,
-    context: {
-      userType: "patient" | "staff";
-      userId: string;
-      clinicId?: string;
-      permissions: string[];
-    },
+    reason: string | undefined,
+    context: Context,
     t: TranslateFn
-  ): Promise<void> {
+  ) {
+    return bookingService.cancelAppointment(id, reason, context, t);
+  },
+
+  /**
+   * Soft-delete appointment — only for non-confirmed appointments.
+   */
+  async deleteAppointment(id: string, context: Context, t: TranslateFn): Promise<void> {
     if (context.userType === "staff") {
       requirePermission(context.permissions, "appointments:delete", t);
     }
@@ -265,10 +171,9 @@ export const appointmentService = {
     if (!deleted) throw new NotFoundError(t("appointments.notFound"));
 
     logger.warn({
-      msg: "Appointment deleted",
+      msg: "Appointment soft-deleted",
       appointmentId: id,
       deletedBy: context.userId,
-      userType: context.userType,
       status: existing.status,
     });
   },

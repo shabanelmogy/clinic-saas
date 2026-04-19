@@ -1,7 +1,7 @@
 import { db } from "../../db/index.js";
 import { permissions, roles, rolePermissions } from "./rbac.schema.js";
 import { PERMISSIONS, DEFAULT_ROLES } from "./permissions.seed.js";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 /**
  * Seed RBAC System
@@ -86,8 +86,10 @@ async function seedDefaultRoles() {
         .select()
         .from(rolePermissions)
         .where(
-          eq(rolePermissions.roleId, role.id) &&
-          eq(rolePermissions.permissionId, permission.id)
+          and(
+            eq(rolePermissions.roleId, role.id),
+            eq(rolePermissions.permissionId, permission.id)
+          )
         )
         .limit(1);
 

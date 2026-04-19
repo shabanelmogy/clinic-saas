@@ -90,3 +90,15 @@ export const createAppointmentSchemas = (t: TranslateFn) => ({
 export type CreateAppointmentInput = z.infer<ReturnType<typeof createAppointmentSchemas>["create"]>;
 export type UpdateAppointmentInput = z.infer<ReturnType<typeof createAppointmentSchemas>["update"]>;
 export type ListAppointmentsQuery = z.infer<ReturnType<typeof createAppointmentSchemas>["listQuery"]>;
+
+// ─── Cancel ───────────────────────────────────────────────────────────────────
+
+export const cancelAppointmentSchema = (t: TranslateFn) =>
+  z.object({
+    reason: z
+      .string()
+      .max(500, t("validation.maxLength", { field: "Reason", max: 500 }))
+      .optional(),
+  });
+
+export type CancelAppointmentInput = z.infer<ReturnType<typeof cancelAppointmentSchema>>;

@@ -64,7 +64,11 @@
     "cannotDeleteConfirmed": "No se puede eliminar una cita confirmada. Cancélela primero",
     "userNotFound": "Usuario no encontrado",
     "userInactive": "No se puede crear una cita para un usuario inactivo",
-    "noPermission": "No tienes permiso para ver esta cita"
+    "noPermission": "No tienes permiso para ver esta cita",
+    "cancelled": "Cita cancelada exitosamente",
+    "clinicRequired": "clinicId es requerido para reservas de pacientes",
+    "patientRequired": "patientId es requerido para reservas del personal",
+    "concurrentUpdate": "Esta cita fue actualizada por otra solicitud. Por favor actualice e intente de nuevo"
   },
   "permissions": {
     "required": "Se requiere el permiso '{{permission}}'",
@@ -155,6 +159,36 @@
     "unassigned": "Rol removido exitosamente",
     "assignmentNotFound": "Asignación de rol no encontrada",
     "permissionsRetrieved": "Permisos recuperados"
+  },
+  "patientRequests": {
+    "submitted": "Solicitud enviada exitosamente. La clínica revisará su solicitud.",
+    "retrieved": "Solicitudes de pacientes recuperadas",
+    "approved": "Solicitud aprobada. Registro de paciente creado.",
+    "approvedWithBooking": "Solicitud aprobada. Paciente creado y cita reservada.",
+    "rejected": "Solicitud de paciente rechazada",
+    "notFound": "Solicitud de paciente no encontrada",
+    "alreadyProcessed": "Esta solicitud ya ha sido {{status}}",
+    "duplicatePending": "Ya existe una solicitud pendiente con este número de teléfono para esta clínica",
+    "patientAlreadyExists": "Ya existe un paciente con este número de teléfono en esta clínica",
+    "clinicRequired": "Se debe asignar una clínica antes de que esta solicitud pueda ser aprobada",
+    "clinicAssigned": "Clínica asignada exitosamente",
+    "slotUnavailable": "Nota: el horario preferido ya no estaba disponible — no se reservó ninguna cita.",
+    "bookingFailed": "Nota: la reserva automática falló — no se reservó ninguna cita."
+  },
+  "doctorRequests": {
+    "submitted": "Solicitud enviada exitosamente. La clínica revisará su solicitud.",
+    "retrieved": "Solicitudes de médicos recuperadas",
+    "approved": "Solicitud de médico aprobada exitosamente",
+    "rejected": "Solicitud de médico rechazada",
+    "notFound": "Solicitud de médico no encontrada",
+    "alreadyProcessed": "Esta solicitud ya ha sido {{status}}",
+    "duplicatePendingJoin": "Ya existe una solicitud de unión pendiente con este email para esta clínica",
+    "duplicatePendingCreate": "Ya existe una solicitud de creación de clínica pendiente con este email",
+    "doctorAlreadyExists": "Ya existe un médico con este email en esta clínica",
+    "clinicNotFound": "Clínica no encontrada o inactiva",
+    "clinicIdMissing": "clinic_id es requerido para solicitudes de unión",
+    "clinicNameMissing": "clinic_name es requerido para solicitudes de creación",
+    "superAdminOnly": "Solo un super administrador puede aprobar solicitudes de creación de clínica"
   },
   "health": {
     "ok": "ok",

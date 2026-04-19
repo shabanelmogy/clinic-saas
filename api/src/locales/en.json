@@ -64,7 +64,11 @@
     "cannotDeleteConfirmed": "Cannot delete a confirmed appointment. Cancel it first",
     "userNotFound": "User not found",
     "userInactive": "Cannot create appointment for an inactive user",
-    "noPermission": "You do not have permission to view this appointment"
+    "noPermission": "You do not have permission to view this appointment",
+    "cancelled": "Appointment cancelled successfully",
+    "clinicRequired": "clinicId is required for patient bookings",
+    "patientRequired": "patientId is required for staff bookings",
+    "concurrentUpdate": "This appointment was updated by another request. Please refresh and try again"
   },
   "clinics": {
     "retrieved": "Clinics retrieved",
@@ -155,6 +159,36 @@
     "unassigned": "Role removed successfully",
     "assignmentNotFound": "Role assignment not found",
     "permissionsRetrieved": "Permissions retrieved"
+  },
+  "patientRequests": {
+    "submitted": "Request submitted successfully. The clinic will review your request.",
+    "retrieved": "Patient requests retrieved",
+    "approved": "Patient request approved. Patient record created.",
+    "approvedWithBooking": "Patient request approved. Patient created and appointment booked.",
+    "rejected": "Patient request rejected",
+    "notFound": "Patient request not found",
+    "alreadyProcessed": "This request has already been {{status}}",
+    "duplicatePending": "A pending request from this phone number already exists for this clinic",
+    "patientAlreadyExists": "A patient with this phone number already exists in this clinic",
+    "clinicRequired": "A clinic must be assigned before this request can be approved",
+    "clinicAssigned": "Clinic assigned successfully",
+    "slotUnavailable": "Note: the preferred slot was no longer available — no appointment was booked.",
+    "bookingFailed": "Note: auto-booking failed — no appointment was booked."
+  },
+  "doctorRequests": {
+    "submitted": "Request submitted successfully. The clinic will review your application.",
+    "retrieved": "Doctor requests retrieved",
+    "approved": "Doctor request approved successfully",
+    "rejected": "Doctor request rejected",
+    "notFound": "Doctor request not found",
+    "alreadyProcessed": "This request has already been {{status}}",
+    "duplicatePendingJoin": "A pending join request from this email already exists for this clinic",
+    "duplicatePendingCreate": "A pending clinic creation request from this email already exists",
+    "doctorAlreadyExists": "A doctor with this email already exists in this clinic",
+    "clinicNotFound": "Clinic not found or is inactive",
+    "clinicIdMissing": "clinic_id is required for join requests",
+    "clinicNameMissing": "clinic_name is required for create requests",
+    "superAdminOnly": "Only a super admin can approve clinic creation requests"
   },
   "health": {
     "ok": "ok",

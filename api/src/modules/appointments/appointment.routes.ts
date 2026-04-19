@@ -4,7 +4,7 @@ import { validate } from "../../middlewares/validate.middleware.js";
 import { authenticate } from "../../middlewares/auth.middleware.js";
 import { authorize, authorizeAny } from "../rbac/authorize.middleware.js";
 import { idParamSchema } from "../../utils/shared-validators.js";
-import { createAppointmentSchemas } from "./appointment.validation.js";
+import { createAppointmentSchemas, cancelAppointmentSchema } from "./appointment.validation.js";
 
 const router = Router();
 
@@ -277,6 +277,46 @@ router.delete(
   authorize("appointments:delete"),
   validate({ params: idParamSchema }),
   appointmentController.remove
+);
+
+/**
+ * @openapi
+ * /appointments/{id}/cancel:
+ *   post:
+ *     tags: [Appointments]
+ *     summary: Cancel an appointment
+ *     description: |
+ *       Transactionally cancels the appointment and releases the linked slot (if any).
+ *       Uses optimistic locking — returns 409 if a concurrent update is detected.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/IdParam'
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               reason:
+ *                 type: string
+ *                 maxLength: 500
+ *     responses:
+ *       200:
+ *         description: Appointment cancelled and slot released
+ *       400:
+ *         description: Appointment is already in a terminal status
+ *       409:
+ *         description: Concurrent update detected — retry
+ *       404:
+ *         description: Appointment not found
+ */
+router.post(
+  "/:id/cancel",
+  authenticate,
+  authorizeAny(["appointments:update", "appointments:view_own"]),
+  validate({ params: idParamSchema, body: (t) => cancelAppointmentSchema(t) }),
+  appointmentController.cancel
 );
 
 export default router;

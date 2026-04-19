@@ -50,7 +50,7 @@ const envSchema = z.object({
   // PostgreSQL connection pool
   DB_POOL_MAX: z.coerce.number().default(20),
   DB_POOL_IDLE_TIMEOUT_MS: z.coerce.number().default(30_000),
-  DB_POOL_CONNECTION_TIMEOUT_MS: z.coerce.number().default(2_000),
+  DB_POOL_CONNECTION_TIMEOUT_MS: z.coerce.number().default(10_000), // 10s — enough for Neon cold-start
   // Set to "true" to require SSL (always true in production)
   DB_SSL: z.string().optional(),
 });

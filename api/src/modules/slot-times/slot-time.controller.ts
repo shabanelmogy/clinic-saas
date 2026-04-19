@@ -14,11 +14,18 @@ export const slotTimeController = {
   async list(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const isStaff = req.user?.userType === "staff";
-      const context = {
-        clinicId: isStaff ? req.user!.clinicId! : (req.query.clinicId as string),
-        isStaff,
-        permissions: req.user?.permissions ?? [],
-      };
+
+      // Staff: clinicId from JWT. Public: clinicId from query param (required).
+      const clinicId = isStaff
+        ? req.user!.clinicId!
+        : (req.query.clinicId as string | undefined);
+
+      if (!clinicId) {
+        res.status(400).json({ success: false, message: req.t("validation.required", { field: "clinicId" }) });
+        return;
+      }
+
+      const context = { clinicId, isStaff, permissions: req.user?.permissions ?? [] };
       const result = await slotTimeService.listSlots(
         req.query as unknown as ListSlotsQuery,
         context,

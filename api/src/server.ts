@@ -26,6 +26,8 @@ import doctorScheduleRoutes, { publicScheduleRouter } from "./modules/doctor-sch
 import patientRoutes from "./modules/patients/patient.routes.js";
 import slotTimeRoutes from "./modules/slot-times/slot-time.routes.js";
 import roleRoutes from "./modules/rbac/role.routes.js";
+import patientRequestRoutes from "./modules/patient-requests/patient-request.routes.js";
+import doctorRequestRoutes from "./modules/doctor-requests/doctor-request.routes.js";
 
 const app = express();
 
@@ -131,16 +133,22 @@ app.use("/api/v1/staff-users", staffUserRoutes);
 app.use("/api/v1/appointments", appointmentRoutes);
 app.use("/api/v1/clinics", clinicRoutes);
 // Public marketplace: /api/v1/clinics/:clinicId/doctors
-app.use("/api/v1/clinics/:clinicId/doctors", publicDoctorRouter);
+// ✅ Mount on static prefix — param :clinicId is defined inside publicDoctorRouter
+app.use("/api/v1/clinics", publicDoctorRouter);
 // Public: /api/v1/clinics/:clinicId/doctors/:doctorId/schedules
-app.use("/api/v1/clinics/:clinicId/doctors/:doctorId/schedules", publicScheduleRouter);
+app.use("/api/v1/clinics", publicScheduleRouter);
 // Staff: /api/v1/doctors (scoped to JWT clinicId)
 app.use("/api/v1/doctors", doctorRoutes);
 // Staff: /api/v1/doctors/:doctorId/schedules
-app.use("/api/v1/doctors/:doctorId/schedules", doctorScheduleRoutes);
+// ✅ Mount on static prefix — param :doctorId defined inside doctorScheduleRoutes
+app.use("/api/v1/doctors", doctorScheduleRoutes);
 app.use("/api/v1/patients", patientRoutes);
 app.use("/api/v1/slot-times", slotTimeRoutes);
 app.use("/api/v1/roles", roleRoutes);
+// Patient requests: public POST + staff review
+app.use("/api/v1/patient-requests", patientRequestRoutes);
+// Doctor requests: public POST + staff review
+app.use("/api/v1/doctor-requests", doctorRequestRoutes);
 
 // ─── Error Handling ───────────────────────────────────────────────────────────
 app.use(notFoundHandler);

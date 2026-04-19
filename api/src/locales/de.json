@@ -64,7 +64,11 @@
     "cannotDeleteConfirmed": "Ein bestätigter Termin kann nicht gelöscht werden. Stornieren Sie ihn zuerst",
     "userNotFound": "Benutzer nicht gefunden",
     "userInactive": "Termin kann nicht für einen inaktiven Benutzer erstellt werden",
-    "noPermission": "Sie haben keine Berechtigung, diesen Termin anzuzeigen"
+    "noPermission": "Sie haben keine Berechtigung, diesen Termin anzuzeigen",
+    "cancelled": "Termin erfolgreich storniert",
+    "clinicRequired": "clinicId ist für Patientenbuchungen erforderlich",
+    "patientRequired": "patientId ist für Personalbuchungen erforderlich",
+    "concurrentUpdate": "Dieser Termin wurde von einer anderen Anfrage aktualisiert. Bitte aktualisieren Sie und versuchen Sie es erneut"
   },
   "permissions": {
     "required": "Berechtigung '{{permission}}' ist erforderlich",
@@ -155,6 +159,36 @@
     "unassigned": "Rolle erfolgreich entfernt",
     "assignmentNotFound": "Rollenzuweisung nicht gefunden",
     "permissionsRetrieved": "Berechtigungen abgerufen"
+  },
+  "patientRequests": {
+    "submitted": "Anfrage erfolgreich eingereicht. Die Klinik wird Ihre Anfrage prüfen.",
+    "retrieved": "Patientenanfragen abgerufen",
+    "approved": "Anfrage genehmigt. Patientenakte erstellt.",
+    "approvedWithBooking": "Anfrage genehmigt. Patient erstellt und Termin gebucht.",
+    "rejected": "Patientenanfrage abgelehnt",
+    "notFound": "Patientenanfrage nicht gefunden",
+    "alreadyProcessed": "Diese Anfrage wurde bereits {{status}}",
+    "duplicatePending": "Eine ausstehende Anfrage mit dieser Telefonnummer existiert bereits für diese Klinik",
+    "patientAlreadyExists": "Ein Patient mit dieser Telefonnummer existiert bereits in dieser Klinik",
+    "clinicRequired": "Eine Klinik muss zugewiesen werden, bevor diese Anfrage genehmigt werden kann",
+    "clinicAssigned": "Klinik erfolgreich zugewiesen",
+    "slotUnavailable": "Hinweis: Der bevorzugte Termin war nicht mehr verfügbar — kein Termin wurde gebucht.",
+    "bookingFailed": "Hinweis: Die automatische Buchung ist fehlgeschlagen — kein Termin wurde gebucht."
+  },
+  "doctorRequests": {
+    "submitted": "Anfrage erfolgreich eingereicht. Die Klinik wird Ihre Bewerbung prüfen.",
+    "retrieved": "Arztanfragen abgerufen",
+    "approved": "Arztanfrage erfolgreich genehmigt",
+    "rejected": "Arztanfrage abgelehnt",
+    "notFound": "Arztanfrage nicht gefunden",
+    "alreadyProcessed": "Diese Anfrage wurde bereits {{status}}",
+    "duplicatePendingJoin": "Eine ausstehende Beitrittsanfrage mit dieser E-Mail existiert bereits für diese Klinik",
+    "duplicatePendingCreate": "Eine ausstehende Klinikgründungsanfrage mit dieser E-Mail existiert bereits",
+    "doctorAlreadyExists": "Ein Arzt mit dieser E-Mail existiert bereits in dieser Klinik",
+    "clinicNotFound": "Klinik nicht gefunden oder inaktiv",
+    "clinicIdMissing": "clinic_id ist für Beitrittsanfragen erforderlich",
+    "clinicNameMissing": "clinic_name ist für Gründungsanfragen erforderlich",
+    "superAdminOnly": "Nur ein Super-Administrator kann Klinikgründungsanfragen genehmigen"
   },
   "health": {
     "ok": "ok",

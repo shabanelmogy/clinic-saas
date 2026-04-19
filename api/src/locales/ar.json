@@ -64,7 +64,11 @@
     "cannotDeleteConfirmed": "لا يمكن حذف موعد مؤكد. قم بإلغائه أولاً",
     "userNotFound": "المستخدم غير موجود",
     "userInactive": "لا يمكن إنشاء موعد لمستخدم غير نشط",
-    "noPermission": "ليس لديك إذن لعرض هذا الموعد"
+    "noPermission": "ليس لديك إذن لعرض هذا الموعد",
+    "cancelled": "تم إلغاء الموعد بنجاح",
+    "clinicRequired": "clinicId مطلوب لحجوزات المرضى",
+    "patientRequired": "patientId مطلوب لحجوزات الموظفين",
+    "concurrentUpdate": "تم تحديث هذا الموعد بواسطة طلب آخر. يرجى التحديث والمحاولة مرة أخرى"
   },
   "permissions": {
     "required": "الإذن '{{permission}}' مطلوب",
@@ -155,6 +159,36 @@
     "unassigned": "تم إزالة الدور بنجاح",
     "assignmentNotFound": "تعيين الدور غير موجود",
     "permissionsRetrieved": "تم استرجاع الصلاحيات"
+  },
+  "patientRequests": {
+    "submitted": "تم تقديم الطلب بنجاح. ستقوم العيادة بمراجعة طلبك.",
+    "retrieved": "تم استرجاع طلبات المرضى",
+    "approved": "تمت الموافقة على الطلب. تم إنشاء سجل المريض.",
+    "approvedWithBooking": "تمت الموافقة على الطلب. تم إنشاء المريض وحجز الموعد.",
+    "rejected": "تم رفض طلب المريض",
+    "notFound": "طلب المريض غير موجود",
+    "alreadyProcessed": "تمت معالجة هذا الطلب بالفعل: {{status}}",
+    "duplicatePending": "يوجد طلب معلق بنفس رقم الهاتف لهذه العيادة",
+    "patientAlreadyExists": "يوجد مريض بنفس رقم الهاتف في هذه العيادة",
+    "clinicRequired": "يجب تعيين عيادة قبل الموافقة على هذا الطلب",
+    "clinicAssigned": "تم تعيين العيادة بنجاح",
+    "slotUnavailable": "ملاحظة: الموعد المفضل لم يعد متاحاً — لم يتم حجز أي موعد.",
+    "bookingFailed": "ملاحظة: فشل الحجز التلقائي — لم يتم حجز أي موعد."
+  },
+  "doctorRequests": {
+    "submitted": "تم تقديم الطلب بنجاح. ستقوم العيادة بمراجعة طلبك.",
+    "retrieved": "تم استرجاع طلبات الأطباء",
+    "approved": "تمت الموافقة على طلب الطبيب بنجاح",
+    "rejected": "تم رفض طلب الطبيب",
+    "notFound": "طلب الطبيب غير موجود",
+    "alreadyProcessed": "تمت معالجة هذا الطلب بالفعل: {{status}}",
+    "duplicatePendingJoin": "يوجد طلب انضمام معلق بنفس البريد الإلكتروني لهذه العيادة",
+    "duplicatePendingCreate": "يوجد طلب إنشاء عيادة معلق بنفس البريد الإلكتروني",
+    "doctorAlreadyExists": "يوجد طبيب بنفس البريد الإلكتروني في هذه العيادة",
+    "clinicNotFound": "العيادة غير موجودة أو غير نشطة",
+    "clinicIdMissing": "clinic_id مطلوب لطلبات الانضمام",
+    "clinicNameMissing": "clinic_name مطلوب لطلبات الإنشاء",
+    "superAdminOnly": "فقط المشرف العام يمكنه الموافقة على طلبات إنشاء العيادة"
   },
   "health": {
     "ok": "جيد",

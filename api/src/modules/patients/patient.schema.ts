@@ -53,21 +53,19 @@ export const patients = pgTable(
       .where(sql`${t.deletedAt} IS NULL`),
     phoneIdx: index("patients_phone_idx").on(t.phone),
     /**
-     * ✅ FIX #4: Partial unique — email per clinic, only when email IS NOT NULL.
-     * Standard unique() on (email, clinicId) allows unlimited NULL emails per clinic
-     * but that's intentional. This partial index enforces uniqueness only when
-     * an email is actually provided.
+     * ✅ email unique per clinic — only enforced when email IS NOT NULL.
+     * Without nullsNotDistinct(), NULL != NULL so multiple patients can have
+     * no email in the same clinic.
      */
     emailClinicActiveUnique: unique("patients_email_clinic_unique")
-      .on(t.email, t.clinicId)
-      .nullsNotDistinct(),
+      .on(t.email, t.clinicId),
     /**
-     * ✅ Partial unique: nationalId per clinic, only when provided and not deleted.
-     * Prevents duplicate national IDs within a clinic while allowing NULL.
+     * ✅ nationalId unique per clinic — only enforced when nationalId IS NOT NULL.
+     * Without nullsNotDistinct(), PostgreSQL treats NULL != NULL in unique constraints,
+     * so multiple patients can have NULL nationalId in the same clinic.
      */
     nationalIdClinicUnique: unique("patients_national_id_clinic_unique")
-      .on(t.nationalId, t.clinicId)
-      .nullsNotDistinct(),
+      .on(t.nationalId, t.clinicId),
   })
 );
 

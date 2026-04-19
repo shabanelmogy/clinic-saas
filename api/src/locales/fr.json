@@ -64,7 +64,11 @@
     "cannotDeleteConfirmed": "Impossible de supprimer un rendez-vous confirmé. Annulez-le d'abord",
     "userNotFound": "Utilisateur non trouvé",
     "userInactive": "Impossible de créer un rendez-vous pour un utilisateur inactif",
-    "noPermission": "Vous n'avez pas la permission de voir ce rendez-vous"
+    "noPermission": "Vous n'avez pas la permission de voir ce rendez-vous",
+    "cancelled": "Rendez-vous annulé avec succès",
+    "clinicRequired": "clinicId est requis pour les réservations des patients",
+    "patientRequired": "patientId est requis pour les réservations du personnel",
+    "concurrentUpdate": "Ce rendez-vous a été mis à jour par une autre requête. Veuillez actualiser et réessayer"
   },
   "permissions": {
     "required": "La permission '{{permission}}' est requise",
@@ -155,6 +159,36 @@
     "unassigned": "Rôle retiré avec succès",
     "assignmentNotFound": "Attribution de rôle non trouvée",
     "permissionsRetrieved": "Permissions récupérées"
+  },
+  "patientRequests": {
+    "submitted": "Demande soumise avec succès. La clinique examinera votre demande.",
+    "retrieved": "Demandes de patients récupérées",
+    "approved": "Demande approuvée. Dossier patient créé.",
+    "approvedWithBooking": "Demande approuvée. Patient créé et rendez-vous réservé.",
+    "rejected": "Demande de patient rejetée",
+    "notFound": "Demande de patient non trouvée",
+    "alreadyProcessed": "Cette demande a déjà été {{status}}",
+    "duplicatePending": "Une demande en attente avec ce numéro de téléphone existe déjà pour cette clinique",
+    "patientAlreadyExists": "Un patient avec ce numéro de téléphone existe déjà dans cette clinique",
+    "clinicRequired": "Une clinique doit être assignée avant que cette demande puisse être approuvée",
+    "clinicAssigned": "Clinique assignée avec succès",
+    "slotUnavailable": "Note : le créneau préféré n'était plus disponible — aucun rendez-vous n'a été réservé.",
+    "bookingFailed": "Note : la réservation automatique a échoué — aucun rendez-vous n'a été réservé."
+  },
+  "doctorRequests": {
+    "submitted": "Demande soumise avec succès. La clinique examinera votre candidature.",
+    "retrieved": "Demandes de médecins récupérées",
+    "approved": "Demande de médecin approuvée avec succès",
+    "rejected": "Demande de médecin rejetée",
+    "notFound": "Demande de médecin non trouvée",
+    "alreadyProcessed": "Cette demande a déjà été {{status}}",
+    "duplicatePendingJoin": "Une demande d'adhésion en attente avec cet email existe déjà pour cette clinique",
+    "duplicatePendingCreate": "Une demande de création de clinique en attente avec cet email existe déjà",
+    "doctorAlreadyExists": "Un médecin avec cet email existe déjà dans cette clinique",
+    "clinicNotFound": "Clinique non trouvée ou inactive",
+    "clinicIdMissing": "clinic_id est requis pour les demandes d'adhésion",
+    "clinicNameMissing": "clinic_name est requis pour les demandes de création",
+    "superAdminOnly": "Seul un super administrateur peut approuver les demandes de création de clinique"
   },
   "health": {
     "ok": "ok",
