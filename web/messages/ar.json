@@ -1,0 +1,75 @@
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "view": "عرض",
+    "search": "بحث",
+    "filter": "تصفية",
+    "actions": "الإجراءات",
+    "status": "الحالة",
+    "noData": "لا توجد بيانات",
+    "error": "حدث خطأ ما"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "clinicId": "معرف العيادة (اختياري)",
+    "loginButton": "دخول",
+    "loggingIn": "جاري الدخول...",
+    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "patients": "المرضى",
+    "doctors": "الأطباء",
+    "appointments": "المواعيد",
+    "requests": "الطلبات",
+    "settings": "الإعدادات"
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "welcome": "مرحباً، {name}"
+  },
+  "patients": {
+    "title": "المرضى",
+    "addPatient": "إضافة مريض",
+    "name": "الاسم",
+    "phone": "الهاتف",
+    "email": "البريد الإلكتروني",
+    "gender": "الجنس",
+    "dateOfBirth": "تاريخ الميلاد",
+    "status": "الحالة",
+    "active": "نشط",
+    "inactive": "غير نشط"
+  },
+  "appointments": {
+    "title": "المواعيد",
+    "newAppointment": "موعد جديد",
+    "scheduledAt": "موعد الجلسة",
+    "duration": "المدة",
+    "status": {
+      "pending": "قيد الانتظار",
+      "confirmed": "مؤكد",
+      "cancelled": "ملغي",
+      "completed": "مكتمل",
+      "no_show": "لم يحضر"
+    }
+  },
+  "requests": {
+    "title": "الطلبات",
+    "patientRequests": "طلبات المرضى",
+    "doctorRequests": "طلبات الأطباء",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "status": {
+      "pending": "قيد الانتظار",
+      "approved": "موافق عليه",
+      "rejected": "مرفوض"
+    }
+  }
+}

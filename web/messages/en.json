@@ -1,0 +1,75 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "search": "Search",
+    "filter": "Filter",
+    "actions": "Actions",
+    "status": "Status",
+    "noData": "No data found",
+    "error": "Something went wrong"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "clinicId": "Clinic ID (optional)",
+    "loginButton": "Sign in",
+    "loggingIn": "Signing in...",
+    "invalidCredentials": "Invalid email or password"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "patients": "Patients",
+    "doctors": "Doctors",
+    "appointments": "Appointments",
+    "requests": "Requests",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back, {name}"
+  },
+  "patients": {
+    "title": "Patients",
+    "addPatient": "Add Patient",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "gender": "Gender",
+    "dateOfBirth": "Date of Birth",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "appointments": {
+    "title": "Appointments",
+    "newAppointment": "New Appointment",
+    "scheduledAt": "Scheduled At",
+    "duration": "Duration",
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "cancelled": "Cancelled",
+      "completed": "Completed",
+      "no_show": "No Show"
+    }
+  },
+  "requests": {
+    "title": "Requests",
+    "patientRequests": "Patient Requests",
+    "doctorRequests": "Doctor Requests",
+    "approve": "Approve",
+    "reject": "Reject",
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    }
+  }
+}
