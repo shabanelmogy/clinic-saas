@@ -1,19 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { useAuthStore } from "@/stores/auth.store";
 import { api, getErrorMessage } from "@/lib/api";
 
 export default function LoginPage() {
   const t = useTranslations("auth");
   const router = useRouter();
+  const { locale } = useParams<{ locale: string }>();
   const setAuth = useAuthStore((s) => s.setAuth);
 
   const [form, setForm] = useState({ email: "", password: "", clinicId: "" });
@@ -30,7 +37,8 @@ export default function LoginPage() {
       });
 
       setAuth(data.data.user, data.data.accessToken, data.data.refreshToken);
-      router.push("/dashboard");
+      // Redirect to locale-prefixed dashboard
+      router.push(`/${locale}/dashboard`);
     } catch (err) {
       toast.error(getErrorMessage(err));
     } finally {
@@ -52,12 +60,13 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@example.com"
+                placeholder="super@clinicsaas.com"
                 value={form.email}
                 onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                 required
               />
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="password">{t("password")}</Label>
               <Input
@@ -68,15 +77,17 @@ export default function LoginPage() {
                 required
               />
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="clinicId">{t("clinicId")}</Label>
               <Input
                 id="clinicId"
-                placeholder="uuid (leave empty for Super Admin)"
+                placeholder="Leave empty for Super Admin"
                 value={form.clinicId}
                 onChange={(e) => setForm((f) => ({ ...f, clinicId: e.target.value }))}
               />
             </div>
+
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? t("loggingIn") : t("loginButton")}
             </Button>
