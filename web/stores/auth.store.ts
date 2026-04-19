@@ -36,25 +36,17 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       isAuthenticated: false,
 
       setAuth: (user, accessToken, refreshToken) => {
-        // Sync to localStorage for the Axios interceptor
-        localStorage.setItem("access_token", accessToken);
-        localStorage.setItem("refresh_token", refreshToken);
-        // Sync to cookie for server-side auth guard in layout
+        // Cookie for server-side auth guard
         document.cookie = `access_token=${accessToken}; path=/; max-age=900; SameSite=Lax`;
         set({ user, accessToken, refreshToken, isAuthenticated: true });
       },
 
       setTokens: (accessToken, refreshToken) => {
-        localStorage.setItem("access_token", accessToken);
-        localStorage.setItem("refresh_token", refreshToken);
         document.cookie = `access_token=${accessToken}; path=/; max-age=900; SameSite=Lax`;
         set({ accessToken, refreshToken });
       },
 
       logout: () => {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        // Clear cookie
         document.cookie = "access_token=; path=/; max-age=0";
         set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
       },

@@ -45,6 +45,16 @@ const router = Router({ mergeParams: true });
  *     summary: Get all schedule rules for a doctor (staff)
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: doctorId
+ *         in: path
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: List of schedule rules
+ *       404:
+ *         description: Doctor not found
  */
 router.get(
   "/:doctorId/schedules",
@@ -62,6 +72,28 @@ router.get(
  *     summary: Create or update a schedule rule for a day
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: doctorId
+ *         in: path
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [dayOfWeek, startTime, endTime]
+ *             properties:
+ *               dayOfWeek: { type: string, enum: [monday, tuesday, wednesday, thursday, friday, saturday, sunday] }
+ *               startTime: { type: string, pattern: "^\\d{2}:\\d{2}$", example: "09:00" }
+ *               endTime: { type: string, pattern: "^\\d{2}:\\d{2}$", example: "17:00" }
+ *               slotDurationMinutes: { type: integer, minimum: 5, maximum: 480, default: 30 }
+ *               maxAppointments: { type: integer, minimum: 1, maximum: 50, default: 1 }
+ *               isActive: { type: boolean, default: true }
+ *     responses:
+ *       200:
+ *         description: Schedule rule created or updated
  */
 router.put(
   "/:doctorId/schedules",
@@ -82,6 +114,20 @@ router.put(
  *     summary: Delete a schedule rule for a specific day
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: doctorId
+ *         in: path
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *       - name: day
+ *         in: path
+ *         required: true
+ *         schema: { type: string, enum: [monday, tuesday, wednesday, thursday, friday, saturday, sunday] }
+ *     responses:
+ *       200:
+ *         description: Schedule rule deleted
+ *       404:
+ *         description: Schedule not found
  */
 router.delete(
   "/:doctorId/schedules/:day",

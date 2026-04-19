@@ -170,7 +170,7 @@
     "alreadyProcessed": "This request has already been {{status}}",
     "duplicatePending": "A pending request from this phone number already exists for this clinic",
     "patientAlreadyExists": "A patient with this phone number already exists in this clinic",
-    "clinicRequired": "A clinic must be assigned before this request can be approved",
+    "clinicRequired": "A clinic must be assigned before this request can be approved. Super admins must assign a clinic first.",
     "clinicAssigned": "Clinic assigned successfully",
     "slotUnavailable": "Note: the preferred slot was no longer available — no appointment was booked.",
     "bookingFailed": "Note: auto-booking failed — no appointment was booked."

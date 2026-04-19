@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+
 import { useRouter, useParams, usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
@@ -32,6 +34,9 @@ const LOCALES = [
 
 export function Topbar() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const ThemeIcon = mounted ? (THEMES.find((t) => t.value === theme)?.icon ?? Monitor) : Monitor;
   const router = useRouter();
   const pathname = usePathname();
   const { locale } = useParams<{ locale: string }>();
@@ -55,13 +60,10 @@ export function Topbar() {
   };
 
   const switchLocale = (newLocale: string) => {
-    // Replace the locale segment in the current path
     const segments = pathname.split("/");
     segments[1] = newLocale;
     router.push(segments.join("/"));
   };
-
-  const CurrentThemeIcon = THEMES.find((t) => t.value === theme)?.icon ?? Monitor;
 
   return (
     <header className="flex items-center justify-end gap-2 px-6 h-14 border-b bg-background shrink-0">
@@ -70,7 +72,7 @@ export function Topbar() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" aria-label="Switch theme">
-            <CurrentThemeIcon className="h-4 w-4" />
+          <ThemeIcon className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

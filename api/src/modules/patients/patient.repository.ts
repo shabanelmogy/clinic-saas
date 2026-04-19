@@ -5,21 +5,13 @@ import type { ListPatientsQuery } from "./patient.validation.js";
 
 export const patientRepository = {
   /**
-   * List active patients for a clinic.
-   * ✅ Always scoped to clinicId — tenant isolation.
-   * ✅ Excludes soft-deleted patients.
+   * List all active patients — global, no clinic scope.
    */
-  async findAllForClinic(
-    clinicId: string,
-    query: ListPatientsQuery
-  ): Promise<{ data: Patient[]; total: number }> {
+  async findAll(query: ListPatientsQuery): Promise<{ data: Patient[]; total: number }> {
     const { page, limit, search, isActive, bloodType, gender } = query;
     const offset = (page - 1) * limit;
 
-    const conditions: SQL[] = [
-      eq(patients.clinicId, clinicId),
-      isNull(patients.deletedAt),
-    ];
+    const conditions: SQL[] = [isNull(patients.deletedAt)];
     if (isActive !== undefined) conditions.push(eq(patients.isActive, isActive));
     if (bloodType) conditions.push(eq(patients.bloodType, bloodType));
     if (gender) conditions.push(eq(patients.gender, gender));
@@ -35,45 +27,35 @@ export const patientRepository = {
     return { data, total: Number(total) };
   },
 
-  /**
-   * Find patient by ID — scoped to clinic.
-   * ✅ Excludes soft-deleted patients.
-   */
-  async findById(id: string, clinicId: string): Promise<Patient | undefined> {
+  async findById(id: string): Promise<Patient | undefined> {
     const [patient] = await db
       .select()
       .from(patients)
-      .where(and(eq(patients.id, id), eq(patients.clinicId, clinicId), isNull(patients.deletedAt)));
+      .where(and(eq(patients.id, id), isNull(patients.deletedAt)));
     return patient;
   },
 
-  /**
-   * Find patient by email within a clinic — for duplicate check before create.
-   */
-  async findByEmail(email: string, clinicId: string): Promise<Patient | undefined> {
+  async findByEmail(email: string): Promise<Patient | undefined> {
     const [patient] = await db
       .select()
       .from(patients)
-      .where(and(
-        eq(patients.email, email.toLowerCase()),
-        eq(patients.clinicId, clinicId),
-        isNull(patients.deletedAt),
-      ));
+      .where(and(eq(patients.email, email.toLowerCase()), isNull(patients.deletedAt)));
     return patient;
   },
 
-  /**
-   * Find patient by nationalId within a clinic — for duplicate check before create.
-   */
-  async findByNationalId(nationalId: string, clinicId: string): Promise<Patient | undefined> {
+  async findByPhone(phone: string): Promise<Patient | undefined> {
     const [patient] = await db
       .select()
       .from(patients)
-      .where(and(
-        eq(patients.nationalId, nationalId),
-        eq(patients.clinicId, clinicId),
-        isNull(patients.deletedAt),
-      ));
+      .where(and(eq(patients.phone, phone), isNull(patients.deletedAt)));
+    return patient;
+  },
+
+  async findByNationalId(nationalId: string): Promise<Patient | undefined> {
+    const [patient] = await db
+      .select()
+      .from(patients)
+      .where(and(eq(patients.nationalId, nationalId), isNull(patients.deletedAt)));
     return patient;
   },
 
@@ -82,36 +64,21 @@ export const patientRepository = {
     return patient;
   },
 
-  async update(id: string, clinicId: string, data: Partial<NewPatient>): Promise<Patient | undefined> {
+  async update(id: string, data: Partial<NewPatient>): Promise<Patient | undefined> {
     const [patient] = await db
       .update(patients)
       .set({ ...data, updatedAt: new Date() })
-      .where(and(eq(patients.id, id), eq(patients.clinicId, clinicId), isNull(patients.deletedAt)))
+      .where(and(eq(patients.id, id), isNull(patients.deletedAt)))
       .returning();
     return patient;
   },
 
-  /**
-   * Soft-delete a patient — sets deletedAt, never removes the row.
-   * Appointment history and medical records remain intact.
-   */
-  async softDelete(id: string, clinicId: string): Promise<boolean> {
+  async softDelete(id: string): Promise<boolean> {
     const result = await db
       .update(patients)
       .set({ deletedAt: new Date(), updatedAt: new Date(), isActive: false })
-      .where(and(eq(patients.id, id), eq(patients.clinicId, clinicId), isNull(patients.deletedAt)))
+      .where(and(eq(patients.id, id), isNull(patients.deletedAt)))
       .returning();
     return result.length > 0;
-  },
-
-  /**
-   * Count active appointments for a patient — used before soft-delete.
-   */
-  async countActive(clinicId: string): Promise<number> {
-    const [{ value }] = await db
-      .select({ value: count() })
-      .from(patients)
-      .where(and(eq(patients.clinicId, clinicId), isNull(patients.deletedAt)));
-    return Number(value);
   },
 };

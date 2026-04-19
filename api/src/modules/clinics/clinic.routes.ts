@@ -69,7 +69,15 @@ router.get(
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/UpdateClinicBody'
+ *             type: object
+ *             properties:
+ *               name: { type: string, maxLength: 200 }
+ *               description: { type: string }
+ *               address: { type: string }
+ *               phone: { type: string, maxLength: 20 }
+ *               email: { type: string, format: email }
+ *               website: { type: string, format: uri }
+ *               isPublished: { type: boolean }
  *     responses:
  *       200:
  *         description: Clinic updated

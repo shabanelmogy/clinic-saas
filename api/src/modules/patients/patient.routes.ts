@@ -69,6 +69,26 @@ router.get(
  *     summary: Create a new patient
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name]
+ *             properties:
+ *               name: { type: string, minLength: 2, maxLength: 100, example: "John Doe" }
+ *               phone: { type: string, maxLength: 20, example: "+1-555-0100" }
+ *               email: { type: string, format: email, example: "john@example.com" }
+ *               dateOfBirth: { type: string, format: date, example: "1985-03-15" }
+ *               gender: { type: string, enum: [male, female, other] }
+ *               bloodType: { type: string, enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] }
+ *               allergies: { type: string, example: "Penicillin" }
+ *               medicalNotes: { type: string, example: "Hypertension" }
+ *               emergencyContactName: { type: string, example: "Jane Doe" }
+ *               emergencyContactPhone: { type: string, example: "+1-555-0200" }
+ *               address: { type: string, example: "123 Main St, New York" }
+ *               nationalId: { type: string, example: "ID123456" }
  *     responses:
  *       201:
  *         description: Patient created
@@ -93,6 +113,26 @@ router.post(
  *       - bearerAuth: []
  *     parameters:
  *       - $ref: '#/components/parameters/IdParam'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string, minLength: 2, maxLength: 100 }
+ *               phone: { type: string, maxLength: 20 }
+ *               email: { type: string, format: email }
+ *               dateOfBirth: { type: string, format: date }
+ *               gender: { type: string, enum: [male, female, other] }
+ *               bloodType: { type: string, enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] }
+ *               allergies: { type: string }
+ *               medicalNotes: { type: string }
+ *               emergencyContactName: { type: string }
+ *               emergencyContactPhone: { type: string }
+ *               address: { type: string }
+ *               nationalId: { type: string }
+ *               isActive: { type: boolean }
  *     responses:
  *       200:
  *         description: Patient updated

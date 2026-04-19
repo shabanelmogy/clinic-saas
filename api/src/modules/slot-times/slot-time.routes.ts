@@ -55,6 +55,17 @@ router.get(
  *     description: Generates bookable slots for a doctor over a date range. Idempotent — existing slots are skipped.
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [doctorId, from, to]
+ *             properties:
+ *               doctorId: { type: string, format: uuid }
+ *               from: { type: string, format: date-time, example: "2026-05-01T00:00:00Z" }
+ *               to: { type: string, format: date-time, example: "2026-05-31T23:59:59Z" }
  *     responses:
  *       201:
  *         description: Slots generated
@@ -130,6 +141,15 @@ router.post(
  *       - bearerAuth: []
  *     parameters:
  *       - $ref: '#/components/parameters/IdParam'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [status]
+ *             properties:
+ *               status: { type: string, enum: [available, blocked] }
  *     responses:
  *       200:
  *         description: Slot status updated

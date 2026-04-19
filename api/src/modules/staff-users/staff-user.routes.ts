@@ -68,6 +68,18 @@ router.get(
  *     summary: Create a new staff user
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, email, password]
+ *             properties:
+ *               name: { type: string, minLength: 2, maxLength: 100, example: "Dr. Jane Smith" }
+ *               email: { type: string, format: email, example: "jane@clinic.com" }
+ *               password: { type: string, minLength: 8, example: "SecurePass1" }
+ *               phone: { type: string, maxLength: 20, example: "+1-555-0100" }
  *     responses:
  *       201:
  *         description: Staff user created
@@ -92,6 +104,18 @@ router.post(
  *       - bearerAuth: []
  *     parameters:
  *       - $ref: '#/components/parameters/IdParam'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string, minLength: 2, maxLength: 100 }
+ *               email: { type: string, format: email }
+ *               phone: { type: string, maxLength: 20 }
+ *               isActive: { type: boolean }
+ *               password: { type: string, minLength: 8 }
  *     responses:
  *       200:
  *         description: Staff user updated

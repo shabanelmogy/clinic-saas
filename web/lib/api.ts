@@ -9,12 +9,33 @@ export const api = axios.create({
   timeout: 15_000,
 });
 
+// ─── Token resolver ───────────────────────────────────────────────────────────
+
+/**
+ * Reads the access token from the Zustand persisted store in localStorage.
+ *
+ * Zustand persist stores state under the key "auth-storage" as:
+ *   { state: { accessToken: "..." }, version: 0 }
+ *
+ * We read directly from there so the token survives page refreshes
+ * without needing a separate localStorage.setItem("access_token") call.
+ */
+function getAccessToken(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("auth-storage");
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed?.state?.accessToken ?? null;
+  } catch {
+    return null;
+  }
+}
+
 // ─── Request interceptor — attach JWT ─────────────────────────────────────────
 
 api.interceptors.request.use((config) => {
-  // Read token from localStorage (set by auth store)
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const token = getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -28,11 +49,12 @@ api.interceptors.response.use(
   async (error: AxiosError<{ message?: string; errors?: unknown }>) => {
     const status = error.response?.status;
 
-    // 401 — token expired or invalid → clear auth and redirect to login
     if (status === 401 && typeof window !== "undefined") {
+      // Clear persisted auth state
+      localStorage.removeItem("auth-storage");
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
-      // Let the auth store handle the redirect via its subscriber
+      document.cookie = "access_token=; path=/; max-age=0";
       window.dispatchEvent(new Event("auth:logout"));
     }
 
@@ -40,7 +62,7 @@ api.interceptors.response.use(
   }
 );
 
-// ─── Typed API response helper ────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export type ApiResponse<T> = {
   success: boolean;

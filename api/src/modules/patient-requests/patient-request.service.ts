@@ -3,6 +3,7 @@ import { db } from "../../db/index.js";
 import { patientRequests } from "./patient-request.schema.js";
 import { patients } from "../patients/patient.schema.js";
 import { patientRequestRepository } from "./patient-request.repository.js";
+import { clinicRepository } from "../clinics/clinic.repository.js";
 import { bookingService } from "../appointments/booking.service.js";
 import type {
   CreatePatientRequestInput,
@@ -212,39 +213,30 @@ export const patientRequestService = {
         );
       }
 
-      // Step 4: Clinic must be assigned
-      if (!row.clinic_id) {
-        throw new BadRequestError(t("patientRequests.clinicRequired"));
-      }
+      // Step 4: Resolve clinicId for the request record (still tracked for audit)
+      // Priority: request.clinic_id → staff JWT clinicId → null (super admin global)
+      const clinicId = row.clinic_id ?? context.clinicId ?? null;
 
-      // Step 5: Tenant isolation — clinic staff can only approve their clinic
-      if (context.clinicId && row.clinic_id !== context.clinicId) {
+      // Step 5: Tenant isolation — clinic staff can only approve their clinic's requests
+      if (context.clinicId && row.clinic_id && row.clinic_id !== context.clinicId) {
         throw new ForbiddenError(t("common.forbidden"));
       }
 
-      const clinicId = row.clinic_id;
-
-      // Step 6: Duplicate patient check (phone is unique key per clinic)
+      // Step 6: Duplicate patient check — phone is globally unique now
       const [existingPatient] = await tx
         .select({ id: patients.id })
         .from(patients)
-        .where(
-          and(
-            eq(patients.phone, row.phone),
-            eq(patients.clinicId, clinicId)
-          )
-        )
+        .where(eq(patients.phone, row.phone))
         .limit(1);
 
       if (existingPatient) {
         throw new ConflictError(t("patientRequests.patientAlreadyExists"));
       }
 
-      // Step 7: Create patient
+      // Step 7: Create patient — no clinicId needed
       const [newPatient] = await tx
         .insert(patients)
         .values({
-          clinicId,
           name: row.name,
           phone: row.phone,
           email: row.email ?? null,
@@ -255,7 +247,6 @@ export const patientRequestService = {
         .returning({ id: patients.id });
 
       // Step 8: Update request → approved
-      // Allow overriding slot/autoBook at approval time
       const now = new Date();
       const [updated] = await tx
         .update(patientRequests)

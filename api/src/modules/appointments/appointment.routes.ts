@@ -119,50 +119,39 @@ router.get(
  *   post:
  *     tags: [Appointments]
  *     summary: Create a new appointment
- *     description: The `scheduledAt` must be a future datetime. The referenced `userId` must exist and be active.
+ *     description: |
+ *       If `slotId` is provided, books the slot atomically (SELECT FOR UPDATE).
+ *       `scheduledAt` is derived from the slot's start time.
+ *       Without `slotId`, creates a walk-in appointment with the provided `scheduledAt`.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/CreateAppointmentBody'
- *           example:
- *             userId: "550e8400-e29b-41d4-a716-446655440000"
- *             title: Initial Consultation
- *             description: First meeting with the client
- *             scheduledAt: "2026-06-15T10:00:00Z"
- *             durationMinutes: 60
- *             notes: Bring portfolio
+ *             type: object
+ *             required: [title, scheduledAt]
+ *             properties:
+ *               patientId: { type: string, format: uuid, description: "Required for staff bookings" }
+ *               clinicId: { type: string, format: uuid, description: "Required for patient bookings" }
+ *               slotId: { type: string, format: uuid, description: "Optional — links to a slot" }
+ *               title: { type: string, minLength: 2, maxLength: 200, example: "Initial Consultation" }
+ *               description: { type: string }
+ *               scheduledAt: { type: string, format: date-time, example: "2026-06-15T10:00:00Z" }
+ *               durationMinutes: { type: integer, minimum: 5, maximum: 480, default: 60 }
+ *               notes: { type: string }
  *     responses:
  *       201:
  *         description: Appointment created
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success: { type: boolean, example: true }
- *                 message: { type: string, example: Appointment created successfully }
- *                 data:
- *                   $ref: '#/components/schemas/Appointment'
  *       400:
- *         description: User is inactive
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFoundError'
+ *         description: Patient is inactive or missing required fields
  *       404:
- *         description: User not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFoundError'
+ *         description: Patient not found
+ *       409:
+ *         description: Slot no longer available
  *       422:
  *         description: Validation error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ValidationError'
  */
 router.post(
   "/",
@@ -179,6 +168,8 @@ router.post(
  *     tags: [Appointments]
  *     summary: Update an appointment
  *     description: Cannot update appointments with status `cancelled` or `completed`.
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - $ref: '#/components/parameters/IdParam'
  *     requestBody:
@@ -186,40 +177,23 @@ router.post(
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/UpdateAppointmentBody'
- *           example:
- *             status: confirmed
- *             notes: Client confirmed via phone
+ *             type: object
+ *             properties:
+ *               title: { type: string, minLength: 2, maxLength: 200 }
+ *               description: { type: string }
+ *               scheduledAt: { type: string, format: date-time }
+ *               durationMinutes: { type: integer, minimum: 5, maximum: 480 }
+ *               status: { type: string, enum: [pending, confirmed, cancelled, completed, no_show] }
+ *               notes: { type: string }
  *     responses:
  *       200:
  *         description: Appointment updated
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success: { type: boolean, example: true }
- *                 message: { type: string, example: Appointment updated successfully }
- *                 data:
- *                   $ref: '#/components/schemas/Appointment'
  *       400:
  *         description: Cannot update a cancelled or completed appointment
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFoundError'
  *       404:
  *         description: Appointment not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/NotFoundError'
  *       422:
  *         description: Validation error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ValidationError'
  */
 router.patch(
   "/:id",

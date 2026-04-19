@@ -11,7 +11,6 @@ import {
   unique,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-import { clinics } from "../clinics/clinic.schema.js";
 
 export const patientBloodTypeEnum = pgEnum("patient_blood_type", [
   "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-",
@@ -21,13 +20,18 @@ export const patientGenderEnum = pgEnum("patient_gender", [
   "male", "female", "other",
 ]);
 
+/**
+ * patients — global identity table.
+ *
+ * A patient is a person, not a clinic record.
+ * They can book appointments at ANY clinic.
+ * clinic_id has been removed — patients are not owned by a clinic.
+ */
 export const patients = pgTable(
   "patients",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    clinicId: uuid("clinic_id")
-      .notNull()
-      .references(() => clinics.id, { onDelete: "restrict" }),
+    // ✅ No clinic_id — patients are global, not clinic-owned
     name: varchar("name", { length: 100 }).notNull(),
     phone: varchar("phone", { length: 20 }),
     email: varchar("email", { length: 255 }),
@@ -46,26 +50,15 @@ export const patients = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => ({
-    clinicIdx: index("patients_clinic_idx").on(t.clinicId),
-    // Active patients per clinic — primary list query
-    clinicActiveIdx: index("patients_clinic_active_idx")
-      .on(t.clinicId, t.isActive)
+    // Active patients index
+    activeIdx: index("patients_active_idx")
+      .on(t.isActive)
       .where(sql`${t.deletedAt} IS NULL`),
     phoneIdx: index("patients_phone_idx").on(t.phone),
-    /**
-     * ✅ email unique per clinic — only enforced when email IS NOT NULL.
-     * Without nullsNotDistinct(), NULL != NULL so multiple patients can have
-     * no email in the same clinic.
-     */
-    emailClinicActiveUnique: unique("patients_email_clinic_unique")
-      .on(t.email, t.clinicId),
-    /**
-     * ✅ nationalId unique per clinic — only enforced when nationalId IS NOT NULL.
-     * Without nullsNotDistinct(), PostgreSQL treats NULL != NULL in unique constraints,
-     * so multiple patients can have NULL nationalId in the same clinic.
-     */
-    nationalIdClinicUnique: unique("patients_national_id_clinic_unique")
-      .on(t.nationalId, t.clinicId),
+    // Global unique constraints — phone and email are unique across all clinics
+    phoneUnique: unique("patients_phone_unique").on(t.phone),
+    emailUnique: unique("patients_email_unique").on(t.email),
+    nationalIdUnique: unique("patients_national_id_unique").on(t.nationalId),
   })
 );
 

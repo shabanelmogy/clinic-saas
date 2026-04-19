@@ -88,4 +88,41 @@ export const clinicRepository = {
       .returning();
     return clinic;
   },
+
+  /**
+   * Get or create the system default clinic.
+   *
+   * Used when approving patient requests that have no clinic assigned
+   * and the approver is a super admin (no clinicId in JWT).
+   *
+   * The default clinic is:
+   *   - slug: "default-clinic"
+   *   - isActive: true
+   *   - isPublished: false (not visible on marketplace)
+   *
+   * Idempotent — safe to call multiple times.
+   */
+  async getOrCreateDefaultClinic(): Promise<Clinic> {
+    const DEFAULT_SLUG = "default-clinic";
+
+    const [existing] = await db
+      .select()
+      .from(clinics)
+      .where(eq(clinics.slug, DEFAULT_SLUG));
+
+    if (existing) return existing;
+
+    const [created] = await db
+      .insert(clinics)
+      .values({
+        name: "Default Clinic",
+        slug: DEFAULT_SLUG,
+        description: "System default clinic for unassigned patient registrations.",
+        isActive: true,
+        isPublished: false,
+      })
+      .returning();
+
+    return created;
+  },
 };

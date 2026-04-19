@@ -9,15 +9,8 @@ export const patientController = {
   /** GET /patients */
   async list(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const context = {
-        clinicId: req.user!.clinicId!,
-        permissions: req.user!.permissions,
-      };
-      const result = await patientService.listPatients(
-        req.query as unknown as ListPatientsQuery,
-        context,
-        req.t
-      );
+      const context = { userId: req.user!.userId, permissions: req.user!.permissions };
+      const result = await patientService.listPatients(req.query as unknown as ListPatientsQuery, context, req.t);
       const meta = buildPaginationMeta(result.total, result.page, result.limit);
       sendSuccess(res, result.data, req.t("patients.retrieved"), 200, meta);
     } catch (err) { next(err); }
@@ -27,10 +20,7 @@ export const patientController = {
   async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params as unknown as IdParam;
-      const context = {
-        clinicId: req.user!.clinicId!,
-        permissions: req.user!.permissions,
-      };
+      const context = { userId: req.user!.userId, permissions: req.user!.permissions };
       const result = await patientService.getPatientById(id, context, req.t);
       sendSuccess(res, result, req.t("patients.patientRetrieved"));
     } catch (err) { next(err); }
@@ -39,16 +29,8 @@ export const patientController = {
   /** POST /patients */
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const context = {
-        clinicId: req.user!.clinicId!,
-        userId: req.user!.userId,
-        permissions: req.user!.permissions,
-      };
-      const result = await patientService.createPatient(
-        req.body as CreatePatientInput,
-        context,
-        req.t
-      );
+      const context = { userId: req.user!.userId, permissions: req.user!.permissions };
+      const result = await patientService.createPatient(req.body as CreatePatientInput, context, req.t);
       sendCreated(res, result, req.t("patients.created"));
     } catch (err) { next(err); }
   },
@@ -57,17 +39,8 @@ export const patientController = {
   async update(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params as unknown as IdParam;
-      const context = {
-        clinicId: req.user!.clinicId!,
-        userId: req.user!.userId,
-        permissions: req.user!.permissions,
-      };
-      const result = await patientService.updatePatient(
-        id,
-        req.body as UpdatePatientInput,
-        context,
-        req.t
-      );
+      const context = { userId: req.user!.userId, permissions: req.user!.permissions };
+      const result = await patientService.updatePatient(id, req.body as UpdatePatientInput, context, req.t);
       sendSuccess(res, result, req.t("patients.updated"));
     } catch (err) { next(err); }
   },
@@ -76,11 +49,7 @@ export const patientController = {
   async remove(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params as unknown as IdParam;
-      const context = {
-        clinicId: req.user!.clinicId!,
-        userId: req.user!.userId,
-        permissions: req.user!.permissions,
-      };
+      const context = { userId: req.user!.userId, permissions: req.user!.permissions };
       await patientService.deletePatient(id, context, req.t);
       sendSuccess(res, null, req.t("patients.deleted"));
     } catch (err) { next(err); }

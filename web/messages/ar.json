@@ -33,6 +33,9 @@
     "doctors": "الأطباء",
     "appointments": "المواعيد",
     "requests": "الطلبات",
+    "clinics": "العيادات",
+    "staffUsers": "موظفو النظام",
+    "roles": "الأدوار والصلاحيات",
     "settings": "الإعدادات"
   },
   "dashboard": {

@@ -40,6 +40,27 @@ publicDoctorRouter.get(
 // ─── Staff router (mounted under /doctors) ────────────────────────────────────
 const router = Router();
 
+/**
+ * @openapi
+ * /doctors:
+ *   get:
+ *     tags: [Doctors]
+ *     summary: List doctors for the authenticated clinic (staff)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/PageParam'
+ *       - $ref: '#/components/parameters/LimitParam'
+ *       - name: specialty
+ *         in: query
+ *         schema: { type: string }
+ *       - name: search
+ *         in: query
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Paginated list of doctors
+ */
 router.get(
   "/",
   authenticate,
@@ -48,6 +69,22 @@ router.get(
   doctorController.list
 );
 
+/**
+ * @openapi
+ * /doctors/{id}:
+ *   get:
+ *     tags: [Doctors]
+ *     summary: Get doctor by ID (staff)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/IdParam'
+ *     responses:
+ *       200:
+ *         description: Doctor found
+ *       404:
+ *         description: Doctor not found
+ */
 router.get(
   "/:id",
   authenticate,
@@ -56,6 +93,40 @@ router.get(
   doctorController.getById
 );
 
+/**
+ * @openapi
+ * /doctors:
+ *   post:
+ *     tags: [Doctors]
+ *     summary: Create a new doctor
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, specialty]
+ *             properties:
+ *               name: { type: string, minLength: 2, maxLength: 100, example: "Dr. Sarah Smith" }
+ *               specialty:
+ *                 type: string
+ *                 enum: [general_practice, cardiology, dermatology, endocrinology, gastroenterology,
+ *                   gynecology, hematology, nephrology, neurology, oncology, ophthalmology,
+ *                   orthopedics, otolaryngology, pediatrics, psychiatry, pulmonology, radiology,
+ *                   rheumatology, surgery, urology, other]
+ *               staffUserId: { type: string, format: uuid }
+ *               bio: { type: string }
+ *               phone: { type: string, maxLength: 20 }
+ *               email: { type: string, format: email }
+ *               experienceYears: { type: integer, minimum: 0, maximum: 70 }
+ *               consultationFee: { type: integer, minimum: 0, description: "In cents" }
+ *               isPublished: { type: boolean, default: true }
+ *     responses:
+ *       201:
+ *         description: Doctor created
+ */
 router.post(
   "/",
   authenticate,
@@ -64,6 +135,38 @@ router.post(
   doctorController.create
 );
 
+/**
+ * @openapi
+ * /doctors/{id}:
+ *   patch:
+ *     tags: [Doctors]
+ *     summary: Update a doctor
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/IdParam'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string }
+ *               specialty: { type: string }
+ *               bio: { type: string }
+ *               phone: { type: string }
+ *               email: { type: string, format: email }
+ *               experienceYears: { type: integer }
+ *               consultationFee: { type: integer }
+ *               isActive: { type: boolean }
+ *               isPublished: { type: boolean }
+ *     responses:
+ *       200:
+ *         description: Doctor updated
+ *       404:
+ *         description: Doctor not found
+ */
 router.patch(
   "/:id",
   authenticate,
@@ -72,6 +175,22 @@ router.patch(
   doctorController.update
 );
 
+/**
+ * @openapi
+ * /doctors/{id}:
+ *   delete:
+ *     tags: [Doctors]
+ *     summary: Soft-delete a doctor
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/IdParam'
+ *     responses:
+ *       200:
+ *         description: Doctor deleted
+ *       404:
+ *         description: Doctor not found
+ */
 router.delete(
   "/:id",
   authenticate,

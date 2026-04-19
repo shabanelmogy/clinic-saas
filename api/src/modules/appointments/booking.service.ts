@@ -85,8 +85,8 @@ export const bookingService = {
       requirePermission(context.permissions, "appointments:create", t);
     }
 
-    // Verify patient exists and is active in this clinic
-    const patient = await patientRepository.findById(patientId, clinicId);
+    // Verify patient exists and is active
+    const patient = await patientRepository.findById(patientId);
     if (!patient) throw new NotFoundError(t("appointments.userNotFound"));
     if (!patient.isActive) throw new BadRequestError(t("appointments.userInactive"));
 

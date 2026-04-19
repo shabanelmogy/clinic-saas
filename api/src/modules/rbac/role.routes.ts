@@ -36,6 +36,16 @@ router.get(
  *     summary: Assign a role to a staff user
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [staffUserId, roleId]
+ *             properties:
+ *               staffUserId: { type: string, format: uuid }
+ *               roleId: { type: string, format: uuid }
  *     responses:
  *       200:
  *         description: Role assigned
@@ -58,6 +68,16 @@ router.post(
  *     summary: Remove a role from a staff user
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [staffUserId, roleId]
+ *             properties:
+ *               staffUserId: { type: string, format: uuid }
+ *               roleId: { type: string, format: uuid }
  *     responses:
  *       200:
  *         description: Role removed
@@ -133,6 +153,19 @@ router.get(
  *     description: Creates a new role for the authenticated user's clinic. Global roles are system-managed.
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name]
+ *             properties:
+ *               name: { type: string, minLength: 2, maxLength: 100, example: "Senior Doctor" }
+ *               description: { type: string, maxLength: 500 }
+ *               permissionIds:
+ *                 type: array
+ *                 items: { type: string, format: uuid }
  *     responses:
  *       201:
  *         description: Role created
@@ -158,6 +191,18 @@ router.post(
  *       - bearerAuth: []
  *     parameters:
  *       - $ref: '#/components/parameters/IdParam'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string, minLength: 2, maxLength: 100 }
+ *               description: { type: string, maxLength: 500 }
+ *               permissionIds:
+ *                 type: array
+ *                 items: { type: string, format: uuid }
  *     responses:
  *       200:
  *         description: Role updated
