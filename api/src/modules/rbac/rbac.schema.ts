@@ -6,6 +6,7 @@ import {
   index,
   unique,
   primaryKey,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { staffUsers } from "../staff-users/staff-user.schema.js";
@@ -47,6 +48,20 @@ export const roles = pgTable(
 
 // ─── Permissions ──────────────────────────────────────────────────────────────
 
+// ✅ IMPROVEMENT #6: category as pgEnum — prevents invalid categories at DB level,
+// enables index-only scans on category, self-documents valid values.
+export const permissionCategoryEnum = pgEnum("permission_category", [
+  "users",
+  "roles",
+  "appointments",
+  "clinic",
+  "doctors",
+  "patients",
+  "slots",
+  "reports",
+  "system",
+]);
+
 export const permissions = pgTable(
   "permissions",
   {
@@ -54,7 +69,8 @@ export const permissions = pgTable(
     key: varchar("key", { length: 100 }).notNull().unique(),
     name: varchar("name", { length: 100 }).notNull(),
     description: varchar("description", { length: 500 }),
-    category: varchar("category", { length: 50 }).notNull(),
+    // ✅ Enum instead of varchar — DB-enforced, no invalid categories possible
+    category: permissionCategoryEnum("category").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => ({
@@ -134,3 +150,4 @@ export type RolePermission = typeof rolePermissions.$inferSelect;
 export type NewRolePermission = typeof rolePermissions.$inferInsert;
 export type StaffUserRole = typeof staffUserRoles.$inferSelect;
 export type NewStaffUserRole = typeof staffUserRoles.$inferInsert;
+export type PermissionCategory = (typeof permissionCategoryEnum.enumValues)[number];

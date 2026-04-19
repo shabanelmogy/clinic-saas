@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { dayOfWeekEnum } from "./doctor-schedule.schema.js";
-
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
+import type { TranslateFn } from "../../utils/i18n.js";
 
 export const createDoctorScheduleSchemas = (t: TranslateFn) => ({
   upsert: z.object({

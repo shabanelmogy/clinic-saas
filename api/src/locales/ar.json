@@ -140,6 +140,22 @@
     "cannotModifyBooked": "لا يمكن تعديل موعد محجوز",
     "invalidDateRange": "يجب أن يكون تاريخ الانتهاء بعد تاريخ البداية"
   },
+  "roles": {
+    "retrieved": "تم استرجاع الأدوار",
+    "roleRetrieved": "تم استرجاع الدور",
+    "created": "تم إنشاء الدور بنجاح",
+    "updated": "تم تحديث الدور بنجاح",
+    "deleted": "تم حذف الدور بنجاح",
+    "notFound": "الدور غير موجود",
+    "nameExists": "يوجد دور بهذا الاسم بالفعل في هذه العيادة",
+    "cannotDeleteInUse": "لا يمكن حذف الدور: تم تعيينه لـ {{count}} مستخدم(ين)",
+    "globalRolesReadOnly": "الأدوار العامة يديرها النظام ولا يمكن تعديلها",
+    "invalidPermissions": "معرف صلاحية واحد أو أكثر غير صالح",
+    "assigned": "تم تعيين الدور بنجاح",
+    "unassigned": "تم إزالة الدور بنجاح",
+    "assignmentNotFound": "تعيين الدور غير موجود",
+    "permissionsRetrieved": "تم استرجاع الصلاحيات"
+  },
   "health": {
     "ok": "جيد",
     "degraded": "متدهور"

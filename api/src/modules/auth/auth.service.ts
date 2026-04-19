@@ -8,8 +8,7 @@ import { UnauthorizedError, BadRequestError } from "../../utils/errors.js";
 import { env } from "../../config/env.js";
 import { logger } from "../../utils/logger.js";
 import type { LoginInput } from "./auth.validation.js";
-
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
+import type { TranslateFn } from "../../utils/i18n.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

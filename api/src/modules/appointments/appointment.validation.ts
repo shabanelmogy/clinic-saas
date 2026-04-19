@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { paginationSchema } from "../../utils/shared-validators.js";
 import { appointmentStatusEnum } from "./appointment.schema.js";
-
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
+import type { TranslateFn } from "../../utils/i18n.js";
 
 export const createAppointmentSchemas = (t: TranslateFn) => ({
   /**
@@ -15,6 +14,8 @@ export const createAppointmentSchemas = (t: TranslateFn) => ({
     patientId: z.string().uuid(t("validation.invalidUuid")).optional(),
     // Required when a PATIENT books — which clinic to book with
     clinicId: z.string().uuid(t("validation.invalidUuid")).optional(),
+    // Optional: link to a specific slot. When provided, scheduledAt is derived from the slot.
+    slotId: z.string().uuid(t("validation.invalidUuid")).optional(),
     title: z
       .string()
       .min(2, t("validation.minLength", { field: "Title", min: 2 }))

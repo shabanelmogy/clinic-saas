@@ -52,6 +52,7 @@
     "incorrectPassword": "Current password is incorrect",
     "passwordUpdated": "Password changed successfully. Please log in again."
   },
+  "appointments": {
     "retrieved": "Appointments retrieved",
     "appointmentRetrieved": "Appointment retrieved",
     "created": "Appointment created successfully",
@@ -138,6 +139,22 @@
     "notBooked": "Slot is not booked",
     "cannotModifyBooked": "Cannot modify a booked slot",
     "invalidDateRange": "End date must be after start date"
+  },
+  "roles": {
+    "retrieved": "Roles retrieved",
+    "roleRetrieved": "Role retrieved",
+    "created": "Role created successfully",
+    "updated": "Role updated successfully",
+    "deleted": "Role deleted successfully",
+    "notFound": "Role not found",
+    "nameExists": "A role with that name already exists in this clinic",
+    "cannotDeleteInUse": "Cannot delete role: it is assigned to {{count}} staff user(s)",
+    "globalRolesReadOnly": "Global roles are system-managed and cannot be modified",
+    "invalidPermissions": "One or more permission IDs are invalid",
+    "assigned": "Role assigned successfully",
+    "unassigned": "Role removed successfully",
+    "assignmentNotFound": "Role assignment not found",
+    "permissionsRetrieved": "Permissions retrieved"
   },
   "health": {
     "ok": "ok",

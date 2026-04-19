@@ -4,7 +4,7 @@ import { clinics, type Clinic, type NewClinic } from "./clinic.schema.js";
 import type { ListClinicsQuery } from "./clinic.validation.js";
 
 // Fields safe to return on public endpoints — omits internal state
-export type PublicClinic = Omit<Clinic, "isActive" | "isPublished" | "createdAt" | "updatedAt">;
+export type PublicClinic = Omit<Clinic, "isActive" | "isPublished" | "createdAt" | "updatedAt" | "deletedAt">;
 
 const publicColumns = {
   id: clinics.id,

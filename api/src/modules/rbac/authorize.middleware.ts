@@ -114,7 +114,7 @@ export const authorizeAll = (required: string[]) =>
 
 // ─── Service-level helpers ────────────────────────────────────────────────────
 
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
+import type { TranslateFn } from "../../utils/i18n.js";
 
 /**
  * Throws ForbiddenError if the user lacks the permission.

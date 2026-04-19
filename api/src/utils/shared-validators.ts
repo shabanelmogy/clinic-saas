@@ -31,10 +31,12 @@ export const sortSchema = z.object({
 export const paginationWithSortSchema = paginationSchema.merge(sortSchema);
 
 // ─── Date & Time ──────────────────────────────────────────────────────────────
+// ISO 8601 datetime strings — use z.string().datetime() for query params
+// (z.coerce.date() is not used here as modules handle date parsing individually)
 
 export const dateRangeSchema = z.object({
-  from: z.coerce.date().optional(),
-  to: z.coerce.date().optional(),
+  from: z.string().datetime({ message: "Invalid datetime format" }).optional(),
+  to: z.string().datetime({ message: "Invalid datetime format" }).optional(),
 });
 
 // ─── Search & Filters ─────────────────────────────────────────────────────────

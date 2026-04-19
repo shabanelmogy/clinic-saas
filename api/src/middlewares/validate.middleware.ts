@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { z, ZodError } from "zod";
 import { sendError } from "../utils/response.js";
+import { logger } from "../utils/logger.js";
 
 type ZodSchema = z.ZodTypeAny;
 type SchemaFactory = (t: (key: string, params?: Record<string, string | number>) => string) => ZodSchema;
@@ -55,6 +56,13 @@ export const validate =
     }
 
     if (Object.keys(errors).length > 0) {
+      logger.debug({
+        msg: "Validation failed",
+        reqId: req.id,
+        path: req.path,
+        method: req.method,
+        errors,
+      });
       sendError(res, req.t("common.validationFailed"), 422, errors);
       return;
     }

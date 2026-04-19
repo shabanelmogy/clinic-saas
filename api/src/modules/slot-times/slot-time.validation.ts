@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { paginationSchema } from "../../utils/shared-validators.js";
 import { slotStatusEnum } from "./slot-time.schema.js";
-
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
+import type { TranslateFn } from "../../utils/i18n.js";
 
 export const createSlotTimeSchemas = (t: TranslateFn) => ({
   // Query available slots — public and staff
@@ -26,9 +25,11 @@ export const createSlotTimeSchemas = (t: TranslateFn) => ({
     to: z.string().datetime({ message: t("validation.appointments.invalidDatetime") }),
   }),
 
-  // Book a slot
+  // Book a slot — marks it as booked.
+  // The appointment must be created first (with slotId set).
+  // This endpoint is called after appointment creation to flip the slot status.
   book: z.object({
-    appointmentId: z.string().uuid(t("validation.invalidUuid")),
+    // No body required — slotId comes from the URL param
   }),
 
   // Block/unblock a slot manually

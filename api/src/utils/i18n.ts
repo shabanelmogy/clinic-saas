@@ -11,6 +11,9 @@ type TranslationKey = string;
 type TranslationParams = Record<string, string | number>;
 type Translations = typeof en;
 
+/** Shared translate function type — import this instead of redefining locally */
+export type TranslateFn = (key: TranslationKey, params?: TranslationParams) => string;
+
 // ─── Supported Languages ──────────────────────────────────────────────────────
 
 export const SUPPORTED_LANGUAGES = ["en", "ar", "fr", "es", "de"] as const;

@@ -140,6 +140,22 @@
     "cannotModifyBooked": "No se puede modificar un horario reservado",
     "invalidDateRange": "La fecha de fin debe ser posterior a la fecha de inicio"
   },
+  "roles": {
+    "retrieved": "Roles recuperados",
+    "roleRetrieved": "Rol recuperado",
+    "created": "Rol creado exitosamente",
+    "updated": "Rol actualizado exitosamente",
+    "deleted": "Rol eliminado exitosamente",
+    "notFound": "Rol no encontrado",
+    "nameExists": "Ya existe un rol con ese nombre en esta clínica",
+    "cannotDeleteInUse": "No se puede eliminar el rol: está asignado a {{count}} usuario(s)",
+    "globalRolesReadOnly": "Los roles globales son administrados por el sistema y no pueden modificarse",
+    "invalidPermissions": "Uno o más IDs de permiso son inválidos",
+    "assigned": "Rol asignado exitosamente",
+    "unassigned": "Rol removido exitosamente",
+    "assignmentNotFound": "Asignación de rol no encontrada",
+    "permissionsRetrieved": "Permisos recuperados"
+  },
   "health": {
     "ok": "ok",
     "degraded": "degradado"

@@ -2,14 +2,10 @@ import { doctorScheduleRepository } from "./doctor-schedule.repository.js";
 import { doctorRepository } from "../doctors/doctor.repository.js";
 import { slotTimeRepository } from "../slot-times/slot-time.repository.js";
 import type { UpsertScheduleInput } from "./doctor-schedule.validation.js";
-import { NotFoundError, ConflictError, ForbiddenError } from "../../utils/errors.js";
+import { NotFoundError, ConflictError } from "../../utils/errors.js";
 import { logger } from "../../utils/logger.js";
-
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
-
-const requirePermission = (perms: string[], perm: string, t: TranslateFn) => {
-  if (!perms.includes(perm)) throw new ForbiddenError(t("permissions.required", { permission: perm }));
-};
+import type { TranslateFn } from "../../utils/i18n.js";
+import { requirePermission } from "../rbac/authorize.middleware.js";
 
 export const doctorScheduleService = {
   /**

@@ -1,19 +1,9 @@
 import { clinicRepository } from "./clinic.repository.js";
 import type { UpdateClinicInput, ListClinicsQuery } from "./clinic.validation.js";
-import { NotFoundError, ForbiddenError } from "../../utils/errors.js";
+import { NotFoundError } from "../../utils/errors.js";
 import { logger } from "../../utils/logger.js";
-
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
-
-const requirePermission = (
-  userPermissions: string[],
-  permission: string,
-  t: TranslateFn
-): void => {
-  if (!userPermissions.includes(permission)) {
-    throw new ForbiddenError(t("permissions.required", { permission }));
-  }
-};
+import type { TranslateFn } from "../../utils/i18n.js";
+import { requirePermission } from "../rbac/authorize.middleware.js";
 
 export const clinicService = {
   /**

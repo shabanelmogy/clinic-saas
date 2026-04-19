@@ -1,6 +1,5 @@
 import { z } from "zod";
-
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
+import type { TranslateFn } from "../../utils/i18n.js";
 
 export const createAuthSchemas = (t: TranslateFn) => ({
   login: z.object({

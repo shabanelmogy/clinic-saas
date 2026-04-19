@@ -140,6 +140,22 @@
     "cannotModifyBooked": "Impossible de modifier un créneau réservé",
     "invalidDateRange": "La date de fin doit être après la date de début"
   },
+  "roles": {
+    "retrieved": "Rôles récupérés",
+    "roleRetrieved": "Rôle récupéré",
+    "created": "Rôle créé avec succès",
+    "updated": "Rôle mis à jour avec succès",
+    "deleted": "Rôle supprimé avec succès",
+    "notFound": "Rôle non trouvé",
+    "nameExists": "Un rôle avec ce nom existe déjà dans cette clinique",
+    "cannotDeleteInUse": "Impossible de supprimer le rôle : il est attribué à {{count}} utilisateur(s)",
+    "globalRolesReadOnly": "Les rôles globaux sont gérés par le système et ne peuvent pas être modifiés",
+    "invalidPermissions": "Un ou plusieurs identifiants de permission sont invalides",
+    "assigned": "Rôle attribué avec succès",
+    "unassigned": "Rôle retiré avec succès",
+    "assignmentNotFound": "Attribution de rôle non trouvée",
+    "permissionsRetrieved": "Permissions récupérées"
+  },
   "health": {
     "ok": "ok",
     "degraded": "dégradé"

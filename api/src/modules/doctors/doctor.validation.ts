@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { paginationSchema } from "../../utils/shared-validators.js";
 import { doctorSpecialtyEnum } from "./doctor.schema.js";
-
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
+import type { TranslateFn } from "../../utils/i18n.js";
 
 export const createDoctorSchemas = (t: TranslateFn) => ({
   create: z.object({

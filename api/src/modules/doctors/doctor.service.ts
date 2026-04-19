@@ -1,13 +1,9 @@
 import { doctorRepository } from "./doctor.repository.js";
 import type { CreateDoctorInput, UpdateDoctorInput, ListDoctorsQuery } from "./doctor.validation.js";
-import { NotFoundError, ForbiddenError } from "../../utils/errors.js";
+import { NotFoundError } from "../../utils/errors.js";
 import { logger } from "../../utils/logger.js";
-
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
-
-const requirePermission = (perms: string[], perm: string, t: TranslateFn) => {
-  if (!perms.includes(perm)) throw new ForbiddenError(t("permissions.required", { permission: perm }));
-};
+import type { TranslateFn } from "../../utils/i18n.js";
+import { requirePermission } from "../rbac/authorize.middleware.js";
 
 export const doctorService = {
   // ─── Public (marketplace) ──────────────────────────────────────────────────

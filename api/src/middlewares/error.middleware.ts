@@ -6,11 +6,26 @@ import { logger } from "../utils/logger.js";
 
 // PostgreSQL error codes
 const PG_ERRORS: Record<string, { status: number; message: string }> = {
+  // Integrity constraint violations
   "23505": { status: 409, message: "A record with that value already exists" },
   "23503": { status: 409, message: "Referenced record does not exist" },
   "23502": { status: 400, message: "A required field is missing" },
   "23514": { status: 400, message: "A value violates a check constraint" },
+  "23P01": { status: 409, message: "Exclusion constraint violation" },
+  
+  // Data type errors
+  "22P02": { status: 400, message: "Invalid input syntax for type" },
+  "22001": { status: 400, message: "String data too long" },
+  "22003": { status: 400, message: "Numeric value out of range" },
+  
+  // Transaction errors
+  "40001": { status: 409, message: "Serialization failure - please retry" },
+  "40P01": { status: 409, message: "Deadlock detected - please retry" },
+  
+  // Schema errors
   "42P01": { status: 500, message: "Database table not found — run migrations" },
+  "42703": { status: 500, message: "Column does not exist" },
+  "42883": { status: 500, message: "Function does not exist" },
 };
 
 export const errorHandler = (

@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { paginationSchema } from "../../utils/shared-validators.js";
-
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
+import type { TranslateFn } from "../../utils/i18n.js";
 
 export const createStaffUserSchemas = (t: TranslateFn) => ({
   create: z.object({

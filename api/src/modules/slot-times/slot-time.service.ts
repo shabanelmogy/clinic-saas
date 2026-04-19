@@ -1,16 +1,12 @@
 import { slotTimeRepository } from "./slot-time.repository.js";
 import { doctorRepository } from "../doctors/doctor.repository.js";
 import { doctorScheduleRepository } from "../doctor-schedules/doctor-schedule.repository.js";
-import type { ListSlotsQuery, GenerateSlotsInput, BookSlotInput, UpdateSlotStatusInput } from "./slot-time.validation.js";
+import type { ListSlotsQuery, GenerateSlotsInput, UpdateSlotStatusInput } from "./slot-time.validation.js";
 import type { NewSlotTime } from "./slot-time.schema.js";
-import { NotFoundError, ConflictError, BadRequestError, ForbiddenError } from "../../utils/errors.js";
+import { NotFoundError, ConflictError, BadRequestError } from "../../utils/errors.js";
 import { logger } from "../../utils/logger.js";
-
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
-
-const requirePermission = (perms: string[], perm: string, t: TranslateFn) => {
-  if (!perms.includes(perm)) throw new ForbiddenError(t("permissions.required", { permission: perm }));
-};
+import type { TranslateFn } from "../../utils/i18n.js";
+import { requirePermission } from "../rbac/authorize.middleware.js";
 
 /**
  * Generate all slot start times between startTime and endTime for a given duration.
@@ -147,11 +143,11 @@ export const slotTimeService = {
 
   /**
    * Book a slot — atomically marks it as booked.
-   * The WHERE status = 'available' in the repository prevents double-booking.
+   * The appointment must already exist with slotId pointing to this slot.
+   * The WHERE status = 'available' guard in the repository prevents double-booking.
    */
   async bookSlot(
     slotId: string,
-    input: BookSlotInput,
     context: { clinicId: string; userId: string; permissions: string[] },
     t: TranslateFn
   ) {
@@ -164,13 +160,12 @@ export const slotTimeService = {
       throw new ConflictError(t("slotTimes.notAvailable"));
     }
 
-    const booked = await slotTimeRepository.book(slotId, context.clinicId, input.appointmentId);
+    const booked = await slotTimeRepository.book(slotId, context.clinicId);
     if (!booked) throw new ConflictError(t("slotTimes.notAvailable"));
 
     logger.info({
       msg: "Slot booked",
       slotId,
-      appointmentId: input.appointmentId,
       clinicId: context.clinicId,
       bookedBy: context.userId,
     });

@@ -1,25 +1,15 @@
 import { appointmentRepository } from "./appointment.repository.js";
-import { userRepository } from "../users/user.repository.js";
+import { patientRepository } from "../patients/patient.repository.js";
 import { clinicRepository } from "../clinics/clinic.repository.js";
 import type {
   CreateAppointmentInput,
   UpdateAppointmentInput,
   ListAppointmentsQuery,
 } from "./appointment.validation.js";
-import { NotFoundError, BadRequestError, ForbiddenError } from "../../utils/errors.js";
+import { NotFoundError, BadRequestError } from "../../utils/errors.js";
 import { logger } from "../../utils/logger.js";
-
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
-
-const requirePermission = (
-  userPermissions: string[],
-  permission: string,
-  t: TranslateFn
-): void => {
-  if (!userPermissions.includes(permission)) {
-    throw new ForbiddenError(t("permissions.required", { permission }));
-  }
-};
+import type { TranslateFn } from "../../utils/i18n.js";
+import { requirePermission } from "../rbac/authorize.middleware.js";
 
 export const appointmentService = {
   /**
@@ -136,7 +126,7 @@ export const appointmentService = {
       if (!clinic) throw new NotFoundError(t("appointments.clinicNotFound"));
 
       // Verify patient exists (themselves)
-      const patient = await userRepository.findById(context.userId);
+      const patient = await patientRepository.findById(context.userId, context.userId);
       if (!patient || !patient.isActive) {
         throw new BadRequestError(t("appointments.userInactive"));
       }
@@ -167,8 +157,8 @@ export const appointmentService = {
         throw new BadRequestError("patientId is required for staff bookings");
       }
 
-      // Verify patient exists
-      const patient = await userRepository.findById(input.patientId);
+      // Verify patient exists and belongs to this clinic
+      const patient = await patientRepository.findById(input.patientId, context.clinicId!);
       if (!patient) throw new NotFoundError(t("appointments.userNotFound"));
       if (!patient.isActive) {
         throw new BadRequestError(t("appointments.userInactive"));

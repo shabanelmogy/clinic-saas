@@ -1,4 +1,4 @@
-import { eq, and, gte, lte, count, isNull, SQL } from "drizzle-orm";
+import { eq, and, gte, lte, count, SQL } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { slotTimes, type SlotTime, type NewSlotTime } from "./slot-time.schema.js";
 import type { ListSlotsQuery } from "./slot-time.validation.js";
@@ -40,17 +40,6 @@ export const slotTimeRepository = {
   },
 
   /**
-   * Find slot by appointment ID — used during cancellation to reset the slot.
-   */
-  async findByAppointmentId(appointmentId: string, clinicId: string): Promise<SlotTime | undefined> {
-    const [slot] = await db
-      .select()
-      .from(slotTimes)
-      .where(and(eq(slotTimes.appointmentId, appointmentId), eq(slotTimes.clinicId, clinicId)));
-    return slot;
-  },
-
-  /**
    * Bulk insert generated slots — used by the slot generation job.
    * onConflictDoNothing: if a slot already exists for (doctorId, startTime), skip it.
    */
@@ -65,17 +54,23 @@ export const slotTimeRepository = {
   },
 
   /**
-   * Book a slot — atomically sets status to 'booked' and assigns appointmentId.
-   * ✅ WHERE status = 'available' prevents double-booking at DB level.
+   * Mark a slot as booked — atomic optimistic guard.
+   *
+   * ✅ WHERE status = 'available' is the race-condition guard.
+   *    If two concurrent requests hit this simultaneously, only one UPDATE
+   *    will match (PostgreSQL row-level locking on UPDATE).
+   *    The loser gets 0 rows returned → service returns 409.
+   *
+   * Call this AFTER inserting the appointment row (appointment owns slotId FK).
    */
-  async book(id: string, clinicId: string, appointmentId: string): Promise<SlotTime | undefined> {
+  async book(id: string, clinicId: string): Promise<SlotTime | undefined> {
     const [slot] = await db
       .update(slotTimes)
-      .set({ status: "booked", appointmentId })
+      .set({ status: "booked", updatedAt: new Date() })
       .where(and(
         eq(slotTimes.id, id),
         eq(slotTimes.clinicId, clinicId),
-        eq(slotTimes.status, "available"),  // ✅ Only book if still available
+        eq(slotTimes.status, "available"),  // ✅ Atomic guard — only book if still available
       ))
       .returning();
     return slot;
@@ -83,12 +78,12 @@ export const slotTimeRepository = {
 
   /**
    * Release a slot back to available — called on appointment cancellation.
-   * ✅ WHERE status = 'booked' prevents releasing an already-available slot.
+   * ✅ WHERE status = 'booked' prevents double-release.
    */
   async release(id: string, clinicId: string): Promise<SlotTime | undefined> {
     const [slot] = await db
       .update(slotTimes)
-      .set({ status: "available", appointmentId: null })
+      .set({ status: "available", updatedAt: new Date() })
       .where(and(
         eq(slotTimes.id, id),
         eq(slotTimes.clinicId, clinicId),
@@ -109,11 +104,10 @@ export const slotTimeRepository = {
   ): Promise<SlotTime | undefined> {
     const [slot] = await db
       .update(slotTimes)
-      .set({ status })
+      .set({ status, updatedAt: new Date() })
       .where(and(
         eq(slotTimes.id, id),
         eq(slotTimes.clinicId, clinicId),
-        // ✅ Cannot change status of a booked slot
         eq(slotTimes.status, status === "blocked" ? "available" : "blocked"),
       ))
       .returning();
@@ -122,7 +116,7 @@ export const slotTimeRepository = {
 
   /**
    * Delete future available slots for a doctor — called when a schedule rule is deleted.
-   * Only removes 'available' slots (not booked ones — those are appointments).
+   * Only removes 'available' slots (booked slots are live appointments — never touch them).
    */
   async deleteFutureAvailable(doctorId: string, clinicId: string): Promise<number> {
     const result = await db
@@ -138,7 +132,7 @@ export const slotTimeRepository = {
   },
 
   /**
-   * Count available slots for a doctor in a date range — for availability check.
+   * Count available slots for a doctor in a date range — availability check.
    */
   async countAvailable(doctorId: string, clinicId: string, from: Date, to: Date): Promise<number> {
     const [{ value }] = await db

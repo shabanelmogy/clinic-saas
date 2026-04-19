@@ -46,6 +46,7 @@ const options: swaggerJsdoc.Options = {
       { name: "DoctorSchedules",  description: "Weekly recurring availability rules" },
       { name: "SlotTimes",        description: "Generated bookable time slots" },
       { name: "Appointments",     description: "Appointment booking and management" },
+      { name: "Roles",            description: "Role and permission management (RBAC)" },
     ],
 
     components: {
@@ -197,6 +198,44 @@ const options: swaggerJsdoc.Options = {
             appointmentId: { type: "string", format: "uuid", nullable: true },
             createdAt:     { type: "string", format: "date-time" },
           },
+        },
+
+        // ── Role & Permission ─────────────────────────────────────────────
+        Permission: {
+          type: "object",
+          properties: {
+            id:          { type: "string", format: "uuid" },
+            key:         { type: "string", example: "appointments:create" },
+            name:        { type: "string", example: "Create Appointments" },
+            description: { type: "string", nullable: true },
+            category:    { type: "string", example: "appointments" },
+            createdAt:   { type: "string", format: "date-time" },
+          },
+        },
+        Role: {
+          type: "object",
+          properties: {
+            id:          { type: "string", format: "uuid" },
+            name:        { type: "string", example: "Receptionist" },
+            description: { type: "string", nullable: true },
+            clinicId:    { type: "string", format: "uuid", nullable: true, description: "null = global role" },
+            createdAt:   { type: "string", format: "date-time" },
+            updatedAt:   { type: "string", format: "date-time" },
+          },
+        },
+        RoleWithPermissions: {
+          allOf: [
+            { $ref: "#/components/schemas/Role" },
+            {
+              type: "object",
+              properties: {
+                permissions: {
+                  type: "array",
+                  items: { $ref: "#/components/schemas/Permission" },
+                },
+              },
+            },
+          ],
         },
 
         // ── Shared response shapes ────────────────────────────────────────

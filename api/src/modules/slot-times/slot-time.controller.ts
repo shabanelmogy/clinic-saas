@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { sendSuccess, sendCreated } from "../../utils/response.js";
 import { buildPaginationMeta } from "../../utils/pagination.js";
 import { slotTimeService } from "./slot-time.service.js";
-import type { ListSlotsQuery, GenerateSlotsInput, BookSlotInput, UpdateSlotStatusInput } from "./slot-time.validation.js";
+import type { ListSlotsQuery, GenerateSlotsInput, UpdateSlotStatusInput } from "./slot-time.validation.js";
 import type { IdParam } from "../../utils/shared-validators.js";
 
 export const slotTimeController = {
@@ -61,7 +61,7 @@ export const slotTimeController = {
         userId: req.user!.userId,
         permissions: req.user!.permissions,
       };
-      const result = await slotTimeService.bookSlot(id, req.body as BookSlotInput, context, req.t);
+      const result = await slotTimeService.bookSlot(id, context, req.t);
       sendSuccess(res, result, req.t("slotTimes.booked"));
     } catch (err) { next(err); }
   },

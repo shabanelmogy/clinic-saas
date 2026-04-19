@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { authenticate, authorize, authorizeAny } from "./authorize.middleware.js";
+import { authorize, authorizeAny } from "./authorize.middleware.js";
+import { authenticate } from "../../middlewares/auth.middleware.js";
 
 /**
  * Example Protected Routes with RBAC

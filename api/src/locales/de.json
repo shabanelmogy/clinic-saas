@@ -140,6 +140,22 @@
     "cannotModifyBooked": "Gebuchtes Zeitfenster kann nicht geändert werden",
     "invalidDateRange": "Enddatum muss nach Startdatum liegen"
   },
+  "roles": {
+    "retrieved": "Rollen abgerufen",
+    "roleRetrieved": "Rolle abgerufen",
+    "created": "Rolle erfolgreich erstellt",
+    "updated": "Rolle erfolgreich aktualisiert",
+    "deleted": "Rolle erfolgreich gelöscht",
+    "notFound": "Rolle nicht gefunden",
+    "nameExists": "Eine Rolle mit diesem Namen existiert bereits in dieser Klinik",
+    "cannotDeleteInUse": "Rolle kann nicht gelöscht werden: Sie ist {{count}} Benutzer(n) zugewiesen",
+    "globalRolesReadOnly": "Globale Rollen werden vom System verwaltet und können nicht geändert werden",
+    "invalidPermissions": "Eine oder mehrere Berechtigungs-IDs sind ungültig",
+    "assigned": "Rolle erfolgreich zugewiesen",
+    "unassigned": "Rolle erfolgreich entfernt",
+    "assignmentNotFound": "Rollenzuweisung nicht gefunden",
+    "permissionsRetrieved": "Berechtigungen abgerufen"
+  },
   "health": {
     "ok": "ok",
     "degraded": "beeinträchtigt"

@@ -3,10 +3,10 @@ import { staffUserRepository } from "./staff-user.repository.js";
 import { authRepository } from "../auth/auth.repository.js";
 import type { CreateStaffUserInput, UpdateStaffUserInput, ListStaffUsersQuery } from "./staff-user.validation.js";
 import type { StaffUser } from "./staff-user.schema.js";
-import { NotFoundError, ConflictError, BadRequestError, ForbiddenError } from "../../utils/errors.js";
+import { NotFoundError, ConflictError, BadRequestError } from "../../utils/errors.js";
 import { logger } from "../../utils/logger.js";
-
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string;
+import type { TranslateFn } from "../../utils/i18n.js";
+import { requirePermission } from "../rbac/authorize.middleware.js";
 
 const BCRYPT_ROUNDS = 12;
 

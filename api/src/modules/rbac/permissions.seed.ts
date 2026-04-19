@@ -5,7 +5,16 @@
  * Roles are assigned combinations of these permissions.
  */
 
-export const PERMISSIONS = [
+import type { PermissionCategory } from "./rbac.schema.js";
+
+type PermissionSeed = {
+  key: string;
+  name: string;
+  description: string;
+  category: PermissionCategory;
+};
+
+export const PERMISSIONS: PermissionSeed[] = [
   // ─── User Management ────────────────────────────────────────────────────────
   {
     key: "users:view",
