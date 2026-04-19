@@ -46,6 +46,13 @@ const envSchema = z.object({
 
   // Public API URL — used in Swagger docs
   API_URL: z.string().url().optional(),
+
+  // PostgreSQL connection pool
+  DB_POOL_MAX: z.coerce.number().default(20),
+  DB_POOL_IDLE_TIMEOUT_MS: z.coerce.number().default(30_000),
+  DB_POOL_CONNECTION_TIMEOUT_MS: z.coerce.number().default(2_000),
+  // Set to "true" to require SSL (always true in production)
+  DB_SSL: z.string().optional(),
 });
 
 // ─── Parse & validate ─────────────────────────────────────────────────────────

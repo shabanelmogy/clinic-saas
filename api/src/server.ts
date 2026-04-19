@@ -15,6 +15,7 @@ import { requestId } from "./middlewares/request-id.middleware.js";
 import { i18nMiddleware } from "./utils/i18n.js";
 import { errorHandler, notFoundHandler } from "./middlewares/error.middleware.js";
 import { checkDbConnection } from "./utils/db-health.js";
+import { closeDb } from "./db/index.js";
 
 import authRoutes from "./modules/auth/auth.routes.js";
 import userRoutes from "./modules/users/user.routes.js";
@@ -154,8 +155,9 @@ const server = app.listen(env.PORT, () => {
 
 const shutdown = (signal: string) => {
   logger.info(`${signal} received — shutting down gracefully`);
-  server.close(() => {
+  server.close(async () => {
     logger.info("HTTP server closed");
+    await closeDb();
     process.exit(0);
   });
 
