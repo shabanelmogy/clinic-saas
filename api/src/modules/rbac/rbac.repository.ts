@@ -1,4 +1,4 @@
-import { eq, and, inArray, isNull, or } from "drizzle-orm";
+import { eq, and, inArray, isNull, isNotNull, or } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import {
   roles,
@@ -148,7 +148,24 @@ export const rbacRepository = {
     }
   },
 
-  async getAllPermissions(): Promise<Permission[]> {
+  /**
+   * Get all clinic IDs a staff user is explicitly assigned to.
+   * Returns only non-null clinicIds (global assignments are excluded).
+   * Used by getAccessibleClinicIds() to build the scoped clinic list.
+   */
+  async getAssignedClinicIds(staffUserId: string): Promise<string[]> {
+    const rows = await db
+      .select({ clinicId: staffUserRoles.clinicId })
+      .from(staffUserRoles)
+      .where(
+        and(
+          eq(staffUserRoles.staffUserId, staffUserId),
+          isNotNull(staffUserRoles.clinicId)
+        )
+      );
+    // Deduplicate — a user may have multiple roles in the same clinic
+    return [...new Set(rows.map((r) => r.clinicId as string))];
+  },
     return db.select().from(permissions).orderBy(permissions.category, permissions.name);
   },
 
