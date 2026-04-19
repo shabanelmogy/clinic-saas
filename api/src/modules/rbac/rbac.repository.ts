@@ -166,6 +166,8 @@ export const rbacRepository = {
     // Deduplicate — a user may have multiple roles in the same clinic
     return [...new Set(rows.map((r) => r.clinicId as string))];
   },
+
+  async getAllPermissions(): Promise<Permission[]> {
     return db.select().from(permissions).orderBy(permissions.category, permissions.name);
   },
 

@@ -57,8 +57,8 @@ const options: swaggerJsdoc.Options = {
           scheme: "bearer",
           bearerFormat: "JWT",
           description:
-            "Obtain a token from `POST /auth/login`. " +
-            "Include as `Authorization: Bearer <token>` on protected routes.",
+            "Paste only the token value from `POST /auth/login` → `accessToken`. " +
+            "Do NOT include the 'Bearer ' prefix — Swagger adds it automatically.",
         },
       },
 
