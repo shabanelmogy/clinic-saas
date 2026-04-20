@@ -158,7 +158,8 @@
     "assigned": "Role assigned successfully",
     "unassigned": "Role removed successfully",
     "assignmentNotFound": "Role assignment not found",
-    "permissionsRetrieved": "Permissions retrieved"
+    "permissionsRetrieved": "Permissions retrieved",
+    "assignmentsRetrieved": "Role assignments retrieved"
   },
   "patientRequests": {
     "submitted": "Request submitted successfully. The clinic will review your request.",

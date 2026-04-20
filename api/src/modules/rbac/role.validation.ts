@@ -43,12 +43,14 @@ export const createRoleSchemas = (t: TranslateFn) => ({
   assignRole: z.object({
     staffUserId: z.string().uuid(t("validation.invalidUuid")),
     roleId: z.string().uuid(t("validation.invalidUuid")),
-    // clinicId is taken from JWT — not accepted from body
+    // Super admins can pass clinicId explicitly; clinic staff use their JWT clinicId
+    clinicId: z.string().uuid(t("validation.invalidUuid")).optional(),
   }),
 
   removeRole: z.object({
     staffUserId: z.string().uuid(t("validation.invalidUuid")),
     roleId: z.string().uuid(t("validation.invalidUuid")),
+    clinicId: z.string().uuid(t("validation.invalidUuid")).optional(),
   }),
 });
 

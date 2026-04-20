@@ -177,4 +177,58 @@ export const appointmentService = {
       status: existing.status,
     });
   },
+
+  /**
+   * Get appointment by ID with enriched patient + doctor names.
+   */
+  async getAppointmentByIdEnriched(id: string, context: Context, t: TranslateFn) {
+    if (context.userType === "staff") {
+      const canView = context.permissions.includes("appointments:view_all") ||
+                      context.permissions.includes("appointments:view_own");
+      if (!canView) throw new ForbiddenError(t("appointments.noPermission"));
+    }
+
+    const appointment = await appointmentRepository.findByIdEnriched(id, context);
+    if (!appointment) throw new NotFoundError(t("appointments.notFound"));
+    return appointment;
+  },
+
+  /**
+   * List appointments with enriched patient + doctor names (staff only).
+   */
+  async listAppointmentsEnriched(
+    query: ListAppointmentsQuery,
+    context: Context,
+    t: TranslateFn
+  ) {
+    const canViewAll = context.permissions.includes("appointments:view_all");
+    const canViewOwn = context.permissions.includes("appointments:view_own");
+    if (!canViewAll && !canViewOwn) {
+      throw new ForbiddenError(
+        t("permissions.oneRequired", { permissions: "appointments:view_all, appointments:view_own" })
+      );
+    }
+
+    const { data, total } = await appointmentRepository.findAllForClinicEnriched(
+      context.clinicId!,
+      query
+    );
+    return { data, total, page: query.page, limit: query.limit };
+  },
+
+  /**
+   * Get appointment history (audit trail).
+   */
+  async getAppointmentHistory(id: string, context: Context, t: TranslateFn) {
+    if (context.userType === "staff") {
+      const canView = context.permissions.includes("appointments:view_all") ||
+                      context.permissions.includes("appointments:view_own");
+      if (!canView) throw new ForbiddenError(t("appointments.noPermission"));
+    }
+
+    const appointment = await appointmentRepository.findById(id, context);
+    if (!appointment) throw new NotFoundError(t("appointments.notFound"));
+
+    return appointmentRepository.findHistory(id, appointment.clinicId);
+  },
 };

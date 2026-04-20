@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 import type { ApiResponse } from "@/lib/api";
-import type { Role, Permission, CreateRoleInput, UpdateRoleInput, AssignRoleInput } from "../types/rbac.types";
+import type { Role, Permission, CreateRoleInput, UpdateRoleInput, AssignRoleInput, RoleAssignment } from "../types/rbac.types";
 
 type Paginated<T> = { data: T[]; meta: { total: number; page: number; limit: number; totalPages: number; hasNextPage: boolean; hasPrevPage: boolean } };
 
@@ -43,5 +43,10 @@ export const rbacApi = {
 
   unassignRole: async (input: AssignRoleInput): Promise<void> => {
     await api.post("/roles/unassign", input);
+  },
+
+  listAssignments: async (params?: { page?: number; limit?: number; staffUserId?: string }): Promise<Paginated<RoleAssignment>> => {
+    const { data } = await api.get<ApiResponse<RoleAssignment[]>>("/roles/assignments", { params });
+    return { data: data.data, meta: data.meta! as Paginated<RoleAssignment>["meta"] };
   },
 };

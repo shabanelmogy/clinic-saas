@@ -105,4 +105,21 @@ export const roleController = {
       sendSuccess(res, null, req.t("roles.unassigned"));
     } catch (err) { next(err); }
   },
+
+  /** GET /roles/assignments */
+  async listAssignments(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const page  = Number(req.query.page)  || 1;
+      const limit = Number(req.query.limit) || 20;
+      const staffUserId = req.query.staffUserId as string | undefined;
+
+      const result = await roleService.listAssignments(
+        { page, limit, staffUserId },
+        { userId: req.user!.userId, permissions: req.user!.permissions },
+        req.t
+      );
+      const meta = buildPaginationMeta(result.total, result.page, result.limit);
+      sendSuccess(res, result.data, req.t("roles.assignmentsRetrieved"), 200, meta);
+    } catch (err) { next(err); }
+  },
 };

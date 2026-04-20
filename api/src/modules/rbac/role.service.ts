@@ -187,7 +187,8 @@ export const roleService = {
 
   /**
    * Assign a role to a staff user.
-   * clinicId from JWT scopes the assignment.
+   * Super admins can pass clinicId in body to scope the assignment.
+   * Clinic staff always use their JWT clinicId.
    */
   async assignRole(
     input: AssignRoleInput,
@@ -196,21 +197,24 @@ export const roleService = {
   ): Promise<void> {
     requirePermission(context.permissions, "users:manage_roles", t);
 
+    // Super admin can pass clinicId explicitly; clinic staff use JWT clinicId
+    const effectiveClinicId = context.clinicId ?? input.clinicId;
+
     // Verify the staff user exists
     const staffUser = await staffUserRepository.findById(input.staffUserId);
     if (!staffUser) throw new NotFoundError(t("staffUsers.notFound"));
 
     // Verify the role is accessible in this scope
-    const role = await roleRepository.findById(input.roleId, context.clinicId);
+    const role = await roleRepository.findById(input.roleId, effectiveClinicId);
     if (!role) throw new NotFoundError(t("roles.notFound"));
 
-    await roleRepository.assignRole(input.staffUserId, input.roleId, context.userId, context.clinicId);
+    await roleRepository.assignRole(input.staffUserId, input.roleId, context.userId, effectiveClinicId);
 
     logger.info({
       msg: "Role assigned to staff user",
       staffUserId: input.staffUserId,
       roleId: input.roleId,
-      clinicId: context.clinicId,
+      clinicId: effectiveClinicId,
       assignedBy: context.userId,
     });
   },
@@ -235,5 +239,23 @@ export const roleService = {
       clinicId: context.clinicId,
       removedBy: context.userId,
     });
+  },
+
+  /**
+   * List all role assignments (super admin only).
+   * Shows staff user, role, and clinic for each assignment.
+   */
+  async listAssignments(
+    query: { page: number; limit: number; staffUserId?: string },
+    context: { userId: string; permissions: string[] },
+    t: TranslateFn
+  ) {
+    requirePermission(context.permissions, "users:manage_roles", t);
+
+    const { data, total } = await roleRepository.listAssignments(query);
+
+    logger.info({ msg: "Role assignments listed", userId: context.userId, count: data.length });
+
+    return { data, total, page: query.page, limit: query.limit };
   },
 };

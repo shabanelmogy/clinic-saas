@@ -32,4 +32,17 @@ export type UpdateRoleInput = {
 export type AssignRoleInput = {
   staffUserId: string;
   roleId: string;
+  clinicId?: string;
+};
+
+export type RoleAssignment = {
+  id: string;
+  staffUserId: string;
+  staffUserName: string;
+  staffUserEmail: string;
+  roleId: string;
+  roleName: string;
+  clinicId: string | null;
+  clinicName: string | null;
+  assignedAt: string;
 };

@@ -36,6 +36,8 @@
     "clinics": "Clinics",
     "staffUsers": "Staff Users",
     "roles": "Roles & Permissions",
+    "doctors": "Doctors",
+    "myClinic": "My Clinic",
     "settings": "Settings"
   },
   "dashboard": {

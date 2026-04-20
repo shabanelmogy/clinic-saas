@@ -8,6 +8,7 @@ export const rbacKeys = {
   rolesList:   (p?: object) => ["roles", "list", p] as const,
   roleDetail:  (id: string) => ["roles", "detail", id] as const,
   permissions: () => ["roles", "permissions"] as const,
+  assignments: (p?: object) => ["roles", "assignments", p] as const,
 };
 
 export function useRoles(params?: { page?: number; limit?: number; search?: string }) {
@@ -64,5 +65,12 @@ export function useUnassignRole() {
     mutationFn: (input: AssignRoleInput) => rbacApi.unassignRole(input),
     onSuccess: () => { qc.invalidateQueries({ queryKey: rbacKeys.roles() }); toast.success("Role removed"); },
     onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useRoleAssignments(params?: { page?: number; limit?: number; staffUserId?: string }) {
+  return useQuery({
+    queryKey: rbacKeys.assignments(params),
+    queryFn: () => rbacApi.listAssignments(params),
   });
 }

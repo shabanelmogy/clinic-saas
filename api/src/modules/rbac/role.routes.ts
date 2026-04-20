@@ -30,6 +30,31 @@ router.get(
 
 /**
  * @openapi
+ * /roles/assignments:
+ *   get:
+ *     tags: [Roles]
+ *     summary: List all role assignments
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/PageParam'
+ *       - $ref: '#/components/parameters/LimitParam'
+ *       - name: staffUserId
+ *         in: query
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Paginated list of assignments
+ */
+router.get(
+  "/assignments",
+  authenticate,
+  authorize("users:manage_roles"),
+  roleController.listAssignments
+);
+
+/**
+ * @openapi
  * /roles/assign:
  *   post:
  *     tags: [Roles]

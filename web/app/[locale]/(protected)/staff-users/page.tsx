@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { UserPlus, Search, MoreHorizontal, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { UserPlus, Search, MoreHorizontal, Trash2, ChevronLeft, ChevronRight, Eye, Pencil, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,8 @@ import { useStaffUsers, useCreateStaffUser, useDeleteStaffUser } from "@/feature
 import type { CreateStaffUserInput } from "@/features/staff-users/types/staff-user.types";
 
 export default function StaffUsersPage() {
+  const { locale } = useParams<{ locale: string }>();
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [createOpen, setCreateOpen] = useState(false);
@@ -41,9 +44,14 @@ export default function StaffUsersPage() {
           <Input placeholder="Search by name or email..." className="ps-9" value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
         </div>
-        <Button onClick={() => setCreateOpen(true)}>
-          <UserPlus className="h-4 w-4 me-2" /> Add Staff User
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => router.push(`/${locale}/staff-users/assign`)}>
+            <Shield className="h-4 w-4 me-2" /> Assign Roles
+          </Button>
+          <Button onClick={() => setCreateOpen(true)}>
+            <UserPlus className="h-4 w-4 me-2" /> Add Staff User
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-lg border overflow-hidden">
@@ -66,7 +74,8 @@ export default function StaffUsersPage() {
               : users.length === 0
                 ? <TableRow><TableCell colSpan={6} className="text-center py-12 text-muted-foreground">No staff users found</TableCell></TableRow>
                 : users.map((u) => (
-                  <TableRow key={u.id}>
+                  <TableRow key={u.id} className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => router.push(`/${locale}/staff-users/${u.id}`)}>
                     <TableCell className="font-medium">{u.name}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">{u.email}</TableCell>
                     <TableCell className="text-sm">{u.phone ?? "—"}</TableCell>
@@ -76,12 +85,18 @@ export default function StaffUsersPage() {
                         : <Badge variant="secondary">Inactive</Badge>}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">{format(new Date(u.createdAt), "PP")}</TableCell>
-                    <TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => router.push(`/${locale}/staff-users/${u.id}`)}>
+                            <Eye className="h-4 w-4 me-2" /> View
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => router.push(`/${locale}/staff-users/${u.id}/edit`)}>
+                            <Pencil className="h-4 w-4 me-2" /> Edit
+                          </DropdownMenuItem>
                           <DropdownMenuItem className="text-destructive" onClick={() => setDeleteId(u.id)}>
                             <Trash2 className="h-4 w-4 me-2" /> Delete
                           </DropdownMenuItem>

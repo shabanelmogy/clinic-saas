@@ -117,4 +117,53 @@ export const appointmentController = {
       sendSuccess(res, null, req.t("appointments.deleted"));
     } catch (err) { next(err); }
   },
+
+  /** GET /appointments/enriched — list with patient + doctor names */
+  async listEnriched(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const context = {
+        userType: req.user!.userType,
+        userId: req.user!.userId,
+        clinicId: req.user!.clinicId,
+        permissions: req.user!.permissions,
+      };
+      const result = await appointmentService.listAppointmentsEnriched(
+        req.query as unknown as ListAppointmentsQuery,
+        context,
+        req.t
+      );
+      const meta = buildPaginationMeta(result.total, result.page, result.limit);
+      sendSuccess(res, result.data, req.t("appointments.retrieved"), 200, meta);
+    } catch (err) { next(err); }
+  },
+
+  /** GET /appointments/:id/enriched — detail with patient + doctor names */
+  async getByIdEnriched(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = req.params as unknown as IdParam;
+      const context = {
+        userType: req.user!.userType,
+        userId: req.user!.userId,
+        clinicId: req.user!.clinicId,
+        permissions: req.user!.permissions,
+      };
+      const result = await appointmentService.getAppointmentByIdEnriched(id, context, req.t);
+      sendSuccess(res, result, req.t("appointments.appointmentRetrieved"));
+    } catch (err) { next(err); }
+  },
+
+  /** GET /appointments/:id/history */
+  async getHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = req.params as unknown as IdParam;
+      const context = {
+        userType: req.user!.userType,
+        userId: req.user!.userId,
+        clinicId: req.user!.clinicId,
+        permissions: req.user!.permissions,
+      };
+      const result = await appointmentService.getAppointmentHistory(id, context, req.t);
+      sendSuccess(res, result, req.t("appointments.retrieved"));
+    } catch (err) { next(err); }
+  },
 };

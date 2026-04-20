@@ -9,6 +9,8 @@ import {
   type Permission,
   type NewRole,
 } from "./rbac.schema.js";
+import { staffUsers } from "../staff-users/staff-user.schema.js";
+import { clinics } from "../clinics/clinic.schema.js";
 import type { ListRolesQuery } from "./role.validation.js";
 
 export const roleRepository = {
@@ -230,5 +232,47 @@ export const roleRepository = {
       )
       .returning();
     return result.length > 0;
+  },
+
+  /**
+   * List all role assignments with staff user, role, and clinic names joined.
+   * Used by the super admin assignment management page.
+   */
+  async listAssignments(params: { page: number; limit: number; staffUserId?: string }) {
+    const { page, limit, staffUserId } = params;
+    const offset = (page - 1) * limit;
+
+    const conditions: SQL[] = [];
+    if (staffUserId) conditions.push(eq(staffUserRoles.staffUserId, staffUserId));
+    const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const [data, [{ value: total }]] = await Promise.all([
+      db
+        .select({
+          id:            staffUserRoles.id,
+          staffUserId:   staffUserRoles.staffUserId,
+          staffUserName: staffUsers.name,
+          staffUserEmail: staffUsers.email,
+          roleId:        staffUserRoles.roleId,
+          roleName:      roles.name,
+          clinicId:      staffUserRoles.clinicId,
+          clinicName:    clinics.name,
+          assignedAt:    staffUserRoles.assignedAt,
+        })
+        .from(staffUserRoles)
+        .innerJoin(staffUsers, eq(staffUserRoles.staffUserId, staffUsers.id))
+        .innerJoin(roles, eq(staffUserRoles.roleId, roles.id))
+        .leftJoin(clinics, eq(staffUserRoles.clinicId, clinics.id))
+        .where(where)
+        .orderBy(staffUserRoles.assignedAt)
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ value: count() })
+        .from(staffUserRoles)
+        .where(where),
+    ]);
+
+    return { data, total: Number(total) };
   },
 };

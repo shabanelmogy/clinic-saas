@@ -36,6 +36,8 @@
     "clinics": "العيادات",
     "staffUsers": "موظفو النظام",
     "roles": "الأدوار والصلاحيات",
+    "doctors": "الأطباء",
+    "myClinic": "عيادتي",
     "settings": "الإعدادات"
   },
   "dashboard": {

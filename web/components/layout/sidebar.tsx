@@ -14,6 +14,7 @@ import {
   Building2,
   UserCog,
   Shield,
+  Settings2,
 } from "lucide-react";
 
 // ─── Nav item definition ──────────────────────────────────────────────────────
@@ -36,7 +37,11 @@ const NAV_ITEMS: NavItem[] = [
   { key: "patients",     icon: Users,           href: "patients"     },
   { key: "appointments", icon: Calendar,        href: "appointments" },
 
-  // ── Super admin only (no clinicId in JWT) ───────────────────────────────────
+  // ── Clinic staff only ───────────────────────────────────────────────────────
+  { key: "doctors",      icon: Stethoscope,     href: "doctors",      clinicOnly: true },
+  { key: "myClinic",     icon: Settings2,       href: "clinics/me"   },
+
+  // ── Super admin only ────────────────────────────────────────────────────────
   { key: "clinics",      icon: Building2,       href: "clinics",      superAdminOnly: true },
   { key: "staffUsers",   icon: UserCog,         href: "staff-users",  superAdminOnly: true },
   { key: "roles",        icon: Shield,          href: "roles",        superAdminOnly: true },
