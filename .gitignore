@@ -1,0 +1,18 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Kiro / AI tools
+.qodo/
+.sixth/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
